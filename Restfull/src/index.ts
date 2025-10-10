@@ -1,18 +1,22 @@
 import Fastify from 'fastify'
 
-const fastify = Fastify({
-  logger: true
-})
+export const buildServer = (logger = false) => {
+  const app = Fastify({ logger })
 
-fastify.get('/', function (request, reply) {
-  reply.send({ hello: 'world' })
-})
+  app.get('/', async () => ({ hello: 'world' }))
 
-fastify.listen({ port: 3000 }, function (err, address) {
-  if (err) {
-    fastify.log.error(err)
-    process.exit(1)
-  }
-  
-  console.log("server on!")
-})
+  return app
+}
+
+if (require.main === module) {
+  const app = buildServer(true) 
+
+  app.listen({ port: 3000 }, (err, address) => {
+    if (err) {
+      app.log.error(err)
+      process.exit(1)
+    }
+    
+    console.log(`Server running at ${address}`)
+  })
+}
