@@ -14,7 +14,8 @@ describe('GET /', () => {
   })
 
   it('should return 200 and hello world', async () => {
-    const response = await request(app.server).get('/')
+    const response = await request(app.server).get('/users')
+    
     expect(response.status).toBe(200)
     expect(response.body).toEqual({ hello: 'world' })
   })
