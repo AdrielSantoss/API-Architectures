@@ -1,5 +1,9 @@
-import { Usuario } from "@prisma/client";
+import { PrismaClient, Usuario } from "@prisma/client";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { UsuariosDto } from "../models/usuarioDto";
+import { PagingDto } from "../models/pagingDto";
+
+const prisma = new PrismaClient()
 
 interface IUsuarioController {
     getUsuarios(request: FastifyRequest, reply: FastifyReply): Promise<Usuario[] | null>
@@ -10,9 +14,42 @@ interface IUsuarioController {
 }
 
 export class UsuarioController implements IUsuarioController {
-    async getUsuarios(request: FastifyRequest, reply: FastifyReply): Promise<Usuario[] | null> {
-        return reply.send({ hello: 'world' });
+    async getUsuarios(request: FastifyRequest, reply: FastifyReply) {
+        const queryParams = request.query as { page?: string; limit?: string };
+        
+        let page = Number(queryParams.page ?? 1);
+        let limit = Number(queryParams.limit ?? 10);
+
+        if (!Number.isInteger(page) || page <= 0) {
+            return reply.status(400).send('The "page" param must be a positive integer.');
+        }
+
+        if (!Number.isInteger(limit) || limit <= 0 || limit > 10) {
+            return reply.status(400).send('The "limit" param must be an integer between 1 and 10.');
+        }
+
+        const totalItems = await prisma.usuario.count();
+
+        const usuarios = await prisma.usuario.findMany({
+            skip: (page - 1) * limit,
+            take: limit
+        });
+
+        const totalPages = Math.ceil(totalItems / limit);
+
+        return reply.send({
+            data: usuarios,
+            meta: {
+            page,
+            limit,
+            totalItems,
+            totalPages,
+            hasNext: page < totalPages,
+            hasPrev: page > 1
+            }
+        });
     }
+
 
     async getUsuarioById(): Promise<Usuario | null> {
         throw new Error("Method not implemented.");

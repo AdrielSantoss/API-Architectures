@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { UsuarioController } from "../controllers/usuarioController";
 
-export function setUserRoutes(app: FastifyInstance, userController: UsuarioController) {
-    app.get('/users', async (request, reply) => userController.getUsuarios(request, reply))
-    app.get('/users/:id', async () => userController.getUsuarioById())
+export function setUsariosRoutes(app: FastifyInstance, userController: UsuarioController) {
+    app.get('/usuarios', async (request, reply) => userController.getUsuarios(request, reply))
+    app.get('/usuarios/:id', async () => userController.getUsuarioById())
 }
