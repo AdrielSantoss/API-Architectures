@@ -15,7 +15,7 @@ describe('GET /', () => {
   })
 
   it('should return 200 and hello world', async () => {
-    const limit = 1;
+    const limit = 10;
     const page = 1;
 
     const response = await app.inject({

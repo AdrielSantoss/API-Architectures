@@ -17,16 +17,8 @@ export class UsuarioController implements IUsuarioController {
     async getUsuarios(request: FastifyRequest, reply: FastifyReply) {
         const queryParams = request.query as { page?: string; limit?: string };
         
-        let page = Number(queryParams.page ?? 1);
-        let limit = Number(queryParams.limit ?? 10);
-
-        if (!Number.isInteger(page) || page <= 0) {
-            return reply.status(400).send('The "page" param must be a positive integer.');
-        }
-
-        if (!Number.isInteger(limit) || limit <= 0 || limit > 10) {
-            return reply.status(400).send('The "limit" param must be an integer between 1 and 10.');
-        }
+        let page = Number(queryParams.page);
+        let limit = Number(queryParams.limit);
 
         const usuarios = await prisma.usuario.findMany({
             skip: (page - 1) * limit,
