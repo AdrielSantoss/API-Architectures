@@ -24,12 +24,13 @@ describe('GET /', () => {
     })
 
     const data = JSON.parse(response.body) as UsuariosDto;
-    
+
     expect(response.statusCode).toBe(200)
+    expect(data.data![0].nome).toBe('Alice')
+    
     expect(data.data!.length).toBe(limit)
     expect(data.meta.limit).toBe(limit)
     expect(data.meta.page).toBe(page)
-    expect(data.meta.total).toBe(2)
-    expect(data.data![0].nome).toBe('Alice')
+    expect(data.meta.hasNextPage).toBe(true)
   })
 })

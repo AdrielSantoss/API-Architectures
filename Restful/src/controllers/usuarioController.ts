@@ -28,28 +28,24 @@ export class UsuarioController implements IUsuarioController {
             return reply.status(400).send('The "limit" param must be an integer between 1 and 10.');
         }
 
-        const totalItems = await prisma.usuario.count();
-
         const usuarios = await prisma.usuario.findMany({
             skip: (page - 1) * limit,
-            take: limit
+            take: limit + 1
         });
 
-        const totalPages = Math.ceil(totalItems / limit);
+        const hasNextPage = usuarios.length == (limit + 1);
+
+        usuarios.pop();
 
         return reply.send({
             data: usuarios,
             meta: {
-            page,
-            limit,
-            totalItems,
-            totalPages,
-            hasNext: page < totalPages,
-            hasPrev: page > 1
-            }
-        });
+                page,
+                limit,
+                hasNextPage: hasNextPage
+            } 
+        } as UsuariosDto);
     }
-
 
     async getUsuarioById(): Promise<Usuario | null> {
         throw new Error("Method not implemented.");
