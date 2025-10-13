@@ -1,12 +1,10 @@
-import { PrismaClient, Usuario } from "@prisma/client";
+import { Usuario } from "@prisma/client";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { UsuarioService } from "../services/usuarioService";
 import { UsuariosDto } from "../models/usuarioDto";
-import { PagingDto } from "../models/pagingDto";
-
-const prisma = new PrismaClient()
 
 interface IUsuarioController {
-    getUsuarios(request: FastifyRequest, reply: FastifyReply): Promise<Usuario[] | null>
+    getUsuarios(request: FastifyRequest, reply: FastifyReply): Promise<UsuariosDto | null>
     getUsuarioById(): Promise<Usuario | null>
     createUsuario(): Promise<undefined>
     updateUsuario(): Promise<Usuario>
@@ -14,29 +12,16 @@ interface IUsuarioController {
 }
 
 export class UsuarioController implements IUsuarioController {
-    async getUsuarios(request: FastifyRequest, reply: FastifyReply) {
+    private usuarioService: UsuarioService;
+
+    constructor() {
+        this.usuarioService = new UsuarioService();
+    }
+
+    async getUsuarios(request: FastifyRequest, reply: FastifyReply): Promise<UsuariosDto | null> {
         const queryParams = request.query as { page?: string; limit?: string };
-        
-        let page = Number(queryParams.page);
-        let limit = Number(queryParams.limit);
 
-        const usuarios = await prisma.usuario.findMany({
-            skip: (page - 1) * limit,
-            take: limit + 1
-        });
-
-        const hasNextPage = usuarios.length == (limit + 1);
-
-        usuarios.pop();
-
-        return reply.send({
-            data: usuarios,
-            meta: {
-                page,
-                limit,
-                hasNextPage: hasNextPage
-            } 
-        } as UsuariosDto);
+        return reply.send(await this.usuarioService.getUsuarios(Number(queryParams.page), Number(queryParams.limit)));
     }
 
     async getUsuarioById(): Promise<Usuario | null> {
