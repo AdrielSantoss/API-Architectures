@@ -1,41 +1,23 @@
 import { PrismaClient, Usuario } from "@prisma/client";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { UsuariosDto } from "../models/usuarioDto";
-import { UsuarioRepository } from "../repositories/usuarioRepository";
 
 const prisma = new PrismaClient()
 
-interface IUsuarioService {
-    getUsuarios(page: number, limit: number): Promise<UsuariosDto | null>
+interface IUsuarioSRepository {
+    getUsuarios(page: number, limit: number): Promise<Usuario[] | null>
     // getUsuarioById(): Promise<Usuario | null>
     // createUsuario(): Promise<undefined>
     // updateUsuario(): Promise<Usuario>
     // patchUsuario(): Promise<undefined>
 }
 
-export class UsuarioService implements IUsuarioService {
-    private usuarioRepository: UsuarioRepository;
-
-    constructor() {
-        this.usuarioRepository = new UsuarioRepository();
-    }
-
+export class UsuarioRepository implements IUsuarioSRepository {
     async getUsuarios(page: number, limit: number) {
-        // 1. Offset pagination with lookahead
-        
-        const usuarios = await this.usuarioRepository.getUsuarios(page, limit);
-        const hasNextPage = usuarios.length == (limit + 1);
-
-        usuarios.pop();
-
-        return {
-            data: usuarios,
-            meta: {
-                page,
-                limit,
-                hasNextPage: hasNextPage
-            } 
-        };
+        return await prisma.usuario.findMany({
+            skip: (page - 1) * limit,
+            take: limit + 1
+        });
     }
 
     async getUsuarioById(): Promise<Usuario | null> {
