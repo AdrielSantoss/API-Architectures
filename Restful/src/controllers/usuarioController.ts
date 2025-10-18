@@ -5,7 +5,7 @@ import { UsuariosDto } from "../models/usuarioDto";
 
 interface IUsuarioController {
     getUsuarios(request: FastifyRequest, reply: FastifyReply): Promise<UsuariosDto | null>
-    getUsuarioById(): Promise<Usuario | null>
+    getUsuarioById(request: FastifyRequest, reply: FastifyReply): Promise<Usuario | null>
     createUsuario(): Promise<undefined>
     updateUsuario(): Promise<Usuario>
     patchUsuario(): Promise<undefined>
@@ -24,8 +24,10 @@ export class UsuarioController implements IUsuarioController {
         return reply.send(await this.usuarioService.getUsuarios(Number(queryParams.page), Number(queryParams.limit)));
     }
 
-    async getUsuarioById(): Promise<Usuario | null> {
-        throw new Error("Method not implemented.");
+    async getUsuarioById(request: FastifyRequest, reply: FastifyReply): Promise<Usuario | null> {
+        const { id } = request.params as { id: number };
+
+        return reply.send(await this.usuarioService.getUsuarioById(id));
     }
 
     async createUsuario(): Promise<undefined> {

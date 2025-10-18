@@ -20,8 +20,12 @@ export class UsuarioRepository implements IUsuarioSRepository {
         });
     }
 
-    async getUsuarioById(): Promise<Usuario | null> {
-        throw new Error("Method not implemented.");
+    async getUsuarioById(id: number): Promise<Usuario | null> {
+        return await prisma.usuario.findUnique({
+            where: {
+                id
+            }
+        });
     }
 
     async createUsuario(): Promise<undefined> {

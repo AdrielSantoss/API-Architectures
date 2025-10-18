@@ -18,5 +18,5 @@ export function setUsariosRoutes(app: FastifyInstance, userController: UsuarioCo
         async (request, reply) => userController.getUsuarios(request, reply)
     )
         
-    app.get('/usuarios/:id', async () => userController.getUsuarioById())
+    app.get('/usuarios/:id', async (request, reply) => userController.getUsuarioById(request, reply))
 }

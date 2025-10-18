@@ -1,20 +1,21 @@
 import { buildServer } from '../index'
 import 'dotenv/config';
 import { UsuariosDto } from '../models/usuarioDto';
+import { Usuario } from '@prisma/client';
 
-describe('GET /', () => {
-  let app: ReturnType<typeof buildServer>
+let app: ReturnType<typeof buildServer>
 
-  beforeAll(async () => {
-    app = buildServer()
-    await app.ready()
-  })
+beforeAll(async () => {
+  app = buildServer()
+  await app.ready()
+})
 
-  afterAll(async () => {
-    await app.close()
-  })
+afterAll(async () => {
+  await app.close()
+})
 
-  it('should return 200 and hello world', async () => {
+describe('GET /usuarios', () => {
+  it('should return 200 and "Alice" user.', async () => {
     const limit = 10;
     const page = 1;
 
@@ -32,5 +33,20 @@ describe('GET /', () => {
     expect(data.meta.limit).toBe(limit)
     expect(data.meta.page).toBe(page)
     expect(data.meta.hasNextPage).toBe(true)
+  })
+})
+
+describe('GET /usuarios/:id', () => {
+  it('should return 200', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: `/usuarios/${1}`
+    })
+
+    const data = JSON.parse(response.body) as Usuario;
+
+    console.log(data)
+
+    expect(response.statusCode).toBe(200)
   })
 })

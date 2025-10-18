@@ -38,8 +38,12 @@ export class UsuarioService implements IUsuarioService {
         };
     }
 
-    async getUsuarioById(): Promise<Usuario | null> {
-        throw new Error("Method not implemented.");
+    async getUsuarioById(id: number): Promise<Usuario | null> {
+        if (!Number.isInteger(id)) {
+            throw new Error("Invalid ID");
+        }
+
+        return await this.usuarioRepository.getUsuarioById(id);
     }
 
     async createUsuario(): Promise<undefined> {
