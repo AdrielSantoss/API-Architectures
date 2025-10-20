@@ -52,7 +52,7 @@ describe('GET /usuarios/:id', () => {
 
 describe('POST /usuarios', () => {
     it('should return 200 and create new user.', async () => {
-        const newUser = <NewUsuarioDto>{
+        const newUsario = <NewUsuarioDto>{
             email: 'newuser@gmail.com',
             name: 'foobar',
         };
@@ -60,9 +60,12 @@ describe('POST /usuarios', () => {
         const response = await app.inject({
             method: 'POST',
             url: `/usuarios`,
-            body: newUser,
+            body: newUsario,
         });
 
+        const data = response.body;
+
         expect(response.statusCode).toBe(200);
+        expect(data).toBe('foobar');
     });
 });
