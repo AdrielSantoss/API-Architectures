@@ -1,6 +1,6 @@
 import { PrismaClient, Usuario } from '@prisma/client';
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { UsuariosDto } from '../models/usuarioDto';
+import { NewUsuarioDto, UsuariosDto } from '../models/usuarioDto';
 import { UsuarioRepository } from '../repositories/usuarioRepository';
 
 const prisma = new PrismaClient();
@@ -21,7 +21,7 @@ export class UsuarioService implements IUsuarioService {
     }
 
     async getUsuarios(page: number, limit: number) {
-        // 1. Offset pagination with lookahead
+        // Offset pagination with lookahead
 
         const usuarios = await this.usuarioRepository.getUsuarios(page, limit);
         const hasNextPage = usuarios.length == limit + 1;
@@ -42,7 +42,7 @@ export class UsuarioService implements IUsuarioService {
         return await this.usuarioRepository.getUsuarioById(id);
     }
 
-    async createUsuario(): Promise<undefined> {
+    async createUsuario(newUsuario: NewUsuarioDto): Promise<undefined> {
         throw new Error('Method not implemented.');
     }
 

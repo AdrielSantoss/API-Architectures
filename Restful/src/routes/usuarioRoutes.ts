@@ -41,4 +41,21 @@ export function setUsariosRoutes(
         },
         async (request, reply) => userController.getUsuarioById(request, reply)
     );
+
+    app.post(
+        '/usuarios',
+        {
+            schema: {
+                body: {
+                    type: 'object',
+                    required: ['email'],
+                    properties: {
+                        name: { type: 'string' },
+                        email: { type: 'string' },
+                    },
+                },
+            },
+        },
+        async (request, reply) => userController.createUsuario(request, reply)
+    );
 }
