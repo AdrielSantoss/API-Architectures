@@ -1,22 +1,44 @@
-import { FastifyInstance } from "fastify";
-import { UsuarioController } from "../controllers/usuarioController";
+import { FastifyInstance } from 'fastify';
+import { UsuarioController } from '../controllers/usuarioController';
 
-export function setUsariosRoutes(app: FastifyInstance, userController: UsuarioController) { 
+export function setUsariosRoutes(
+    app: FastifyInstance,
+    userController: UsuarioController
+) {
     app.get(
-        '/usuarios', 
-        { // Todo: Maybe move to another function
+        '/usuarios',
+        {
+            // Todo: Maybe move to another function
             schema: {
-                    querystring: {
-                        type: 'object',
-                        properties: {
-                            page: { type: 'integer', minimum: 1, default: 1 },
-                            limit: { type: 'integer', minimum: 1, maximum: 10, default: 10 }
-                        }
-                }
-            }
-        }, 
+                querystring: {
+                    type: 'object',
+                    properties: {
+                        page: { type: 'integer', minimum: 1, default: 1 },
+                        limit: {
+                            type: 'integer',
+                            minimum: 1,
+                            maximum: 10,
+                            default: 10,
+                        },
+                    },
+                },
+            },
+        },
         async (request, reply) => userController.getUsuarios(request, reply)
-    )
-        
-    app.get('/usuarios/:id', async (request, reply) => userController.getUsuarioById(request, reply))
+    );
+
+    app.get(
+        '/usuarios/:id',
+        {
+            schema: {
+                params: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'number', minimum: 1 },
+                    },
+                },
+            },
+        },
+        async (request, reply) => userController.getUsuarioById(request, reply)
+    );
 }
