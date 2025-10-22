@@ -53,7 +53,7 @@ describe('GET /usuarios/:id', () => {
 describe('POST /usuarios', () => {
     it('should return 200 and create new user.', async () => {
         const newUsario = <NewUsuarioDto>{
-            email: 'newuser@gmail.com',
+            email: 'newuser361@gmail.com',
             name: 'foobar',
         };
 
@@ -63,9 +63,6 @@ describe('POST /usuarios', () => {
             body: newUsario,
         });
 
-        const data = response.body;
-
-        expect(response.statusCode).toBe(200);
-        expect(data).toBe('foobar');
+        expect(response.statusCode).toBe(201);
     });
 });

@@ -7,8 +7,8 @@ const prisma = new PrismaClient();
 
 interface IUsuarioService {
     getUsuarios(page: number, limit: number): Promise<UsuariosDto | null>;
-    // getUsuarioById(): Promise<Usuario | null>
-    // createUsuario(): Promise<undefined>
+    getUsuarioById(id: number): Promise<Usuario | null>;
+    createUsuario(newUsuario: NewUsuarioDto): Promise<undefined>;
     // updateUsuario(): Promise<Usuario>
     // patchUsuario(): Promise<undefined>
 }
@@ -43,7 +43,7 @@ export class UsuarioService implements IUsuarioService {
     }
 
     async createUsuario(newUsuario: NewUsuarioDto): Promise<undefined> {
-        throw new Error('Method not implemented.');
+        await this.usuarioRepository.createUsuario(newUsuario);
     }
 
     async updateUsuario(): Promise<Usuario> {

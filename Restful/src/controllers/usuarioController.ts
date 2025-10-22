@@ -54,9 +54,10 @@ export class UsuarioController implements IUsuarioController {
         request: FastifyRequest,
         reply: FastifyReply
     ): Promise<undefined> {
-        const { name, email } = request.body as NewUsuarioDto;
+        const newUsuario = request.body as NewUsuarioDto;
+        this.usuarioService.createUsuario(newUsuario);
 
-        return reply.send(name);
+        return reply.code(201).send();
     }
 
     async updateUsuario(): Promise<Usuario> {
