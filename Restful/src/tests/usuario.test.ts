@@ -53,7 +53,7 @@ describe('GET /usuarios/:id', () => {
 describe('POST /usuarios', () => {
     it('should return 200 and create new user.', async () => {
         const newUsario = <NewUsuarioDto>{
-            email: 'newuser361@gmail.com',
+            email: 'newuser36212@gmail.com',
             name: 'foobar',
         };
 
