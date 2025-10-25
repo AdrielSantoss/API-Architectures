@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env DATABASE_URL=\"file:./test.db\" npx prisma db push --force-reset && jest"
+    "test": "dotenv -e .env -- cross-env DATABASE_URL=$DATABASE_URL_TEST npx prisma db push --force-reset && jest"
   },
   "prisma": {
     "seed": "ts-node seed.ts"
@@ -17,6 +17,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^24.7.1",
     "cross-env": "^10.1.0",
+    "dotenv-cli": "^10.0.0",
     "jest": "^30.2.0",
     "prisma": "^6.17.1",
     "ts-jest": "^29.4.5",
