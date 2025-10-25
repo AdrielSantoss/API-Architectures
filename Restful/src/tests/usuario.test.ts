@@ -1,7 +1,7 @@
-import { buildServer } from '../index';
-import 'dotenv/config';
-import { NewUsuarioDto, UsuariosDto } from '../models/usuarioDto';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Usuario } from '@prisma/client';
+import { NewUsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
+import { buildServer } from '../index.js';
 
 let app: ReturnType<typeof buildServer>;
 
@@ -53,7 +53,7 @@ describe('GET /usuarios/:id', () => {
 describe('POST /usuarios', () => {
     it('should return 200 and create new user.', async () => {
         const newUsario = <NewUsuarioDto>{
-            email: 'newuser36212@gmail.com',
+            email: 'newuser362122@gmail.com',
             name: 'foobar',
         };
 

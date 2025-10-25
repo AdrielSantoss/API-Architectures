@@ -1,7 +1,7 @@
 import { Usuario } from '@prisma/client';
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { UsuarioService } from '../services/usuarioService';
-import { NewUsuarioDto, UsuariosDto } from '../models/usuarioDto';
+import { UsuarioService } from '../services/usuarioService.js';
+import { NewUsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
 
 interface IUsuarioController {
     getUsuarios(

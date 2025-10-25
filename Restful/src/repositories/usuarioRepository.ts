@@ -1,6 +1,5 @@
 import { PrismaClient, Usuario } from '@prisma/client';
-import { FastifyReply, FastifyRequest } from 'fastify';
-import { NewUsuarioDto, UsuariosDto } from '../models/usuarioDto';
+import { NewUsuarioDto } from '../models/usuarioDto.js';
 
 const prisma = new PrismaClient();
 

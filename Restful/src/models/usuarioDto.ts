@@ -1,5 +1,5 @@
 import { Usuario } from '@prisma/client';
-import { PagingDto } from './pagingDto';
+import { PagingDto } from './pagingDto.js';
 
 export interface UsuariosDto {
     data: Usuario[] | null;

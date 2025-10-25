@@ -1,6 +1,6 @@
 import Fastify from 'fastify';
-import { setUsariosRoutes } from './routes/usuarioRoutes';
-import { UsuarioController } from './controllers/usuarioController';
+import { setUsariosRoutes } from './routes/usuarioRoutes.js';
+import { UsuarioController } from './controllers/usuarioController.js';
 
 export const buildServer = (logger = false) => {
     let app = Fastify({ logger });

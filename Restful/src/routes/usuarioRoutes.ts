@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { UsuarioController } from '../controllers/usuarioController';
+import { UsuarioController } from '../controllers/usuarioController.js';
 
 export function setUsariosRoutes(
     app: FastifyInstance,
