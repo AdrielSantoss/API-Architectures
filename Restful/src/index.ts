@@ -13,7 +13,7 @@ export const buildServer = (logger = false) => {
 const app = buildServer(true);
 
 if (!process.env.VITEST) {
-    app.listen({ port: 3000 }, (err, address) => {
+    app.listen({ port: Number(process.env.PORT) || 3000 }, (err, address) => {
         if (err) {
             app.log.error(err);
             process.exit(1);
