@@ -4,10 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "dotenv -e .env -- cross-env DATABASE_URL=$DATABASE_URL_TEST npx prisma db push --force-reset && jest"
+    "test": "dotenv -e .env -- cross-env DATABASE_URL=$DATABASE_URL_TEST npx prisma migrate reset --force && jest",
+    "migrate": "npx prisma migrate",
+    "migrate-reset": "npx prisma migrate reset --force"
   },
   "prisma": {
-    "seed": "ts-node seed.ts"
+    "seed": "ts-node prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
