@@ -10,9 +10,9 @@ export const buildServer = (logger = false) => {
     return app;
 };
 
-if (require.main === module) {
-    const app = buildServer(true);
+const app = buildServer(true);
 
+if (!process.env.VITEST) {
     app.listen({ port: 3000 }, (err, address) => {
         if (err) {
             app.log.error(err);
