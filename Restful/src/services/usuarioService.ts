@@ -71,7 +71,7 @@ export class UsuarioService implements IUsuarioService {
                     newUsuario
                 );
 
-                await redis.set(idempotencyKey, usuario.id);
+                await redis.set(idempotencyKey, usuario.id, 'EX', 3600);
                 return {
                     nome: usuario.nome,
                     email: usuario.email,
