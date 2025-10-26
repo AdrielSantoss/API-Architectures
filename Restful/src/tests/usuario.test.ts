@@ -50,12 +50,12 @@ describe('GET /usuarios/:id', () => {
 });
 
 describe('POST /usuarios', () => {
-    it('should return 200 and create new user.', async () => {
-        const newUsario = <UsuarioDto>{
-            email: 'newuser362122@gmail.com',
-            nome: 'foobar',
-        };
+    const newUsario = <UsuarioDto>{
+        email: 'newuser362122@gmail.com',
+        nome: 'foobar',
+    };
 
+    it('should return 201 and create new user.', async () => {
         const response = await app.inject({
             method: 'POST',
             url: `/usuarios`,
@@ -65,6 +65,29 @@ describe('POST /usuarios', () => {
             },
         });
 
+        const data = JSON.parse(response.body) as UsuarioDto;
+
         expect(response.statusCode).toBe(201);
+        expect(data.email).toBe(newUsario.email);
+        expect(data.nome).toBe(newUsario.nome);
+        expect(data.created).toBe(true);
+    });
+
+    it('should return user with same idempotencykey.', async () => {
+        const response = await app.inject({
+            method: 'POST',
+            url: `/usuarios`,
+            body: newUsario,
+            headers: {
+                idempotencykey: 'abc-123',
+            },
+        });
+
+        const data = JSON.parse(response.body) as UsuarioDto;
+
+        expect(response.statusCode).toBe(200);
+        expect(data.email).toBe(newUsario.email);
+        expect(data.nome).toBe(newUsario.nome);
+        expect(data.created).toBe(undefined);
     });
 });
