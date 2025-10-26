@@ -2,6 +2,8 @@ import { Usuario } from '@prisma/client';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { UsuarioService } from '../services/usuarioService.js';
 import { UsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
+import { AppError } from '../errors/appError.js';
+import { BaseController } from './baseController.js';
 
 interface IUsuarioController {
     getUsuarios(
@@ -20,10 +22,15 @@ interface IUsuarioController {
     patchUsuario(): Promise<undefined>;
 }
 
-export class UsuarioController implements IUsuarioController {
+export class UsuarioController
+    extends BaseController
+    implements IUsuarioController
+{
     private usuarioService: UsuarioService;
 
     constructor() {
+        super();
+
         this.usuarioService = new UsuarioService();
     }
 
@@ -54,15 +61,19 @@ export class UsuarioController implements IUsuarioController {
         request: FastifyRequest,
         reply: FastifyReply
     ): Promise<undefined> {
-        const newUsuario = request.body as UsuarioDto;
-        const idempotencykey = request.headers.idempotencykey as string;
+        try {
+            const newUsuario = request.body as UsuarioDto;
+            const idempotencykey = request.headers.idempotencykey as string;
 
-        const usuario = await this.usuarioService.createUsuario(
-            newUsuario,
-            idempotencykey
-        );
+            const usuario = await this.usuarioService.createUsuario(
+                newUsuario,
+                idempotencykey
+            );
 
-        return reply.code(usuario?.created ? 201 : 200).send(usuario);
+            return reply.code(usuario?.created ? 201 : 200).send(usuario);
+        } catch (error) {
+            this.throwResponseException(error, reply);
+        }
     }
 
     async updateUsuario(): Promise<Usuario> {

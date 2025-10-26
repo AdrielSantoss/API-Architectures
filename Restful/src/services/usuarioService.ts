@@ -3,6 +3,8 @@ import { UsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
 import { UsuarioRepository } from '../repositories/usuarioRepository.js';
 import Redis from 'ioredis-mock';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js';
+import { InternalError } from '../errors/internalError.js';
+import { DuplicateUserError } from '../errors/duplicateUserError.js';
 
 export const redis = new Redis();
 
@@ -12,7 +14,7 @@ interface IUsuarioService {
     createUsuario(
         newUsuario: UsuarioDto,
         idempotencyKey?: string
-    ): Promise<UsuarioDto | undefined>;
+    ): Promise<UsuarioDto>;
     // updateUsuario(): Promise<Usuario>
     // patchUsuario(): Promise<undefined>
 }
@@ -56,7 +58,7 @@ export class UsuarioService implements IUsuarioService {
     async createUsuario(
         newUsuario: UsuarioDto,
         idempotencyKey: string
-    ): Promise<UsuarioDto | undefined> {
+    ): Promise<UsuarioDto> {
         let id: string | null = null;
 
         if (idempotencyKey) {
@@ -76,19 +78,19 @@ export class UsuarioService implements IUsuarioService {
                     created: true,
                 } as UsuarioDto;
             } catch (error: unknown) {
-                if (error instanceof PrismaClientKnownRequestError) {
-                    if (error.code === 'P2002') {
-                        throw new Error('Usuário já está cadastrado.');
-                    } else {
-                        throw new Error(
-                            'Ocorreu um erro interno, entre em contato com o DEV.'
-                        );
-                    }
+                if (
+                    error instanceof PrismaClientKnownRequestError &&
+                    error.code === 'P2002'
+                ) {
+                    throw new DuplicateUserError();
                 }
+
+                console.error('Erro interno ao criar usuário:', error);
+                throw new InternalError();
             }
         }
 
-        return await this.getUsuarioById(Number(id));
+        return (await this.getUsuarioById(Number(id))) as UsuarioDto;
     }
 
     async updateUsuario(): Promise<Usuario> {

@@ -51,7 +51,7 @@ describe('GET /usuarios/:id', () => {
 
 describe('POST /usuarios', () => {
     const newUsario = <UsuarioDto>{
-        email: 'newuser362122@gmail.com',
+        email: `newuser${Date.now()}@gmail.com`,
         nome: 'foobar',
     };
 
@@ -73,7 +73,7 @@ describe('POST /usuarios', () => {
         expect(data.created).toBe(true);
     });
 
-    it('should return user with same idempotencykey.', async () => {
+    it('should return user with the same idempotencykey.', async () => {
         const response = await app.inject({
             method: 'POST',
             url: `/usuarios`,
@@ -89,5 +89,18 @@ describe('POST /usuarios', () => {
         expect(data.email).toBe(newUsario.email);
         expect(data.nome).toBe(newUsario.nome);
         expect(data.created).toBe(undefined);
+    });
+
+    it('should return conflict exception.', async () => {
+        const response = await app.inject({
+            method: 'POST',
+            url: `/usuarios`,
+            body: newUsario,
+            headers: {
+                idempotencykey: 'abcd-1234',
+            },
+        });
+
+        expect(response.statusCode).toBe(409);
     });
 });
