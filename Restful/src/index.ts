@@ -12,6 +12,7 @@ export const buildServer = (logger = false) => {
 
 const app = buildServer(true);
 
+// close connection redis here
 if (!process.env.VITEST) {
     app.listen({ port: Number(process.env.PORT) || 3000 }, (err, address) => {
         if (err) {

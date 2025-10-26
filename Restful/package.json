@@ -4,8 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "dotenv -e .env -- cross-env DATABASE_URL=$DATABASE_URL_TEST npx prisma migrate reset --force && vitest",
         "dev": "npx tsx watch src/index.ts",
+        "test": "dotenv -e .env -- cross-env DATABASE_URL=$DATABASE_URL_TEST npx prisma migrate reset --force && vitest",
         "migrate": "npx prisma migrate",
         "migrate-reset": "npx prisma migrate reset --force"
     },
@@ -20,6 +20,7 @@
         "@types/node": "^24.7.1",
         "cross-env": "^10.1.0",
         "dotenv-cli": "^10.0.0",
+        "ioredis-mock": "^8.13.0",
         "ts-jest": "^29.4.5",
         "ts-node": "^10.9.2",
         "tsx": "^4.20.6",

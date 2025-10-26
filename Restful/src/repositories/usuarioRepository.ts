@@ -1,12 +1,12 @@
 import { PrismaClient, Usuario } from '@prisma/client';
-import { NewUsuarioDto } from '../models/usuarioDto.js';
+import { UsuarioDto } from '../models/usuarioDto.js';
 
 const prisma = new PrismaClient();
 
 interface IUsuarioSRepository {
     getUsuarios(page: number, limit: number): Promise<Usuario[] | null>;
     getUsuarioById(id: number): Promise<Usuario | null>;
-    createUsuario(newUsuario: NewUsuarioDto): Promise<undefined>;
+    createUsuario(newUsuario: UsuarioDto): Promise<Usuario>;
     // updateUsuario(): Promise<Usuario>
     // patchUsuario(): Promise<undefined>
 }
@@ -27,10 +27,11 @@ export class UsuarioRepository implements IUsuarioSRepository {
         });
     }
 
-    async createUsuario(newUsuario: NewUsuarioDto): Promise<undefined> {
-        await prisma.usuario.create({
+    async createUsuario(newUsuario: UsuarioDto): Promise<Usuario> {
+        console.log('created!');
+        return await prisma.usuario.create({
             data: {
-                nome: newUsuario.name,
+                nome: newUsuario.nome,
                 email: newUsuario.email,
             },
         });

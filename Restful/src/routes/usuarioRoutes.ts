@@ -54,6 +54,13 @@ export function setUsariosRoutes(
                         email: { type: 'string' },
                     },
                 },
+                headers: {
+                    type: 'object',
+                    required: ['idempotencykey'],
+                    properties: {
+                        idempotencykey: { type: 'string' },
+                    },
+                },
             },
         },
         async (request, reply) => userController.createUsuario(request, reply)

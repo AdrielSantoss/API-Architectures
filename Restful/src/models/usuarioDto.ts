@@ -7,6 +7,7 @@ export interface UsuariosDto {
 }
 
 export interface NewUsuarioDto {
-    name: string;
+    nome: string | null;
     email: string;
+    created: boolean | null;
 }

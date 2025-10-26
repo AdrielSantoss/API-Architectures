@@ -1,6 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { Usuario } from '@prisma/client';
-import { NewUsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
+import { UsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
 import { buildServer } from '../index.js';
 
 let app: ReturnType<typeof buildServer>;
@@ -43,7 +42,7 @@ describe('GET /usuarios/:id', () => {
             url: `/usuarios/1`,
         });
 
-        const data = JSON.parse(response.body) as Usuario;
+        const data = JSON.parse(response.body) as UsuarioDto;
 
         expect(response.statusCode).toBe(200);
         expect(data.email).toBe('alice@prisma.io');
@@ -52,15 +51,18 @@ describe('GET /usuarios/:id', () => {
 
 describe('POST /usuarios', () => {
     it('should return 200 and create new user.', async () => {
-        const newUsario = <NewUsuarioDto>{
+        const newUsario = <UsuarioDto>{
             email: 'newuser362122@gmail.com',
-            name: 'foobar',
+            nome: 'foobar',
         };
 
         const response = await app.inject({
             method: 'POST',
             url: `/usuarios`,
             body: newUsario,
+            headers: {
+                idempotencykey: 'abc-123',
+            },
         });
 
         expect(response.statusCode).toBe(201);

@@ -1,7 +1,7 @@
 import { Usuario } from '@prisma/client';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { UsuarioService } from '../services/usuarioService.js';
-import { NewUsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
+import { UsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
 
 interface IUsuarioController {
     getUsuarios(
@@ -54,10 +54,15 @@ export class UsuarioController implements IUsuarioController {
         request: FastifyRequest,
         reply: FastifyReply
     ): Promise<undefined> {
-        const newUsuario = request.body as NewUsuarioDto;
-        this.usuarioService.createUsuario(newUsuario);
+        const newUsuario = request.body as UsuarioDto;
+        const idempotencykey = request.headers.idempotencykey as string;
 
-        return reply.code(201).send();
+        const usuario = await this.usuarioService.createUsuario(
+            newUsuario,
+            idempotencykey
+        );
+
+        return reply.code(usuario?.created ? 201 : 200).send(usuario);
     }
 
     async updateUsuario(): Promise<Usuario> {
