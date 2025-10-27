@@ -1,6 +1,8 @@
 import Fastify from 'fastify';
 import { setUsariosRoutes } from './routes/usuarioRoutes.js';
 import { UsuarioController } from './controllers/usuarioController.js';
+import { redis } from './services/usuarioService.js';
+import { prisma } from './repositories/usuarioRepository.js';
 
 export const buildServer = (logger = false) => {
     let app = Fastify({ logger });
@@ -12,14 +14,26 @@ export const buildServer = (logger = false) => {
 
 const app = buildServer(true);
 
-// close connection redis here
-if (!process.env.VITEST) {
-    app.listen({ port: Number(process.env.PORT) || 3000 }, (err, address) => {
-        if (err) {
-            app.log.error(err);
-            process.exit(1);
-        }
+app.addHook('onClose', async (_) => {
+    console.log('the server is shutting down.');
+    await redis.quit();
+    await prisma.$disconnect();
+});
 
+process.on('SIGTERM', async () => {
+    await app.close();
+    process.exit(0);
+});
+
+if (!process.env.VITEST) {
+    try {
+        const address = await app.listen({
+            port: Number(process.env.PORT) || 3000,
+        });
         console.log(`Server running at ${address}`);
-    });
+    } catch (err) {
+        app.log.error(err);
+        await app.close();
+        process.exit(1);
+    }
 }

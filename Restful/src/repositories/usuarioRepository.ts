@@ -1,7 +1,7 @@
 import { PrismaClient, Usuario } from '@prisma/client';
 import { UsuarioDto } from '../models/usuarioDto.js';
 
-const prisma = new PrismaClient();
+export const prisma = new PrismaClient();
 
 interface IUsuarioSRepository {
     getUsuarios(page: number, limit: number): Promise<Usuario[] | null>;
