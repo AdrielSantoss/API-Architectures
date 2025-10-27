@@ -59,38 +59,38 @@ export class UsuarioService implements IUsuarioService {
         newUsuario: UsuarioDto,
         idempotencyKey: string
     ): Promise<UsuarioDto> {
-        let id: string | null = null;
+        try {
+            let id: string | null = null;
 
-        if (idempotencyKey) {
-            id = await redis.get(idempotencyKey);
-        }
-
-        if (id === null) {
-            try {
-                const usuario = await this.usuarioRepository.createUsuario(
-                    newUsuario
-                );
-
-                await redis.set(idempotencyKey, usuario.id, 'EX', 3600);
-                return {
-                    nome: usuario.nome,
-                    email: usuario.email,
-                    created: true,
-                } as UsuarioDto;
-            } catch (error: unknown) {
-                if (
-                    error instanceof PrismaClientKnownRequestError &&
-                    error.code === 'P2002'
-                ) {
-                    throw new DuplicateUserError();
-                }
-
-                console.error('Erro interno ao criar usuário:', error);
-                throw new InternalError();
+            if (idempotencyKey) {
+                id = await redis.get(idempotencyKey);
             }
-        }
 
-        return (await this.getUsuarioById(Number(id))) as UsuarioDto;
+            if (id !== null) {
+                return (await this.getUsuarioById(Number(id))) as UsuarioDto;
+            }
+
+            const usuario = await this.usuarioRepository.createUsuario(
+                newUsuario
+            );
+
+            await redis.set(idempotencyKey, usuario.id, 'EX', 3600);
+            return {
+                nome: usuario.nome,
+                email: usuario.email,
+                created: true,
+            } as UsuarioDto;
+        } catch (error: unknown) {
+            if (
+                error instanceof PrismaClientKnownRequestError &&
+                error.code === 'P2002'
+            ) {
+                throw new DuplicateUserError();
+            }
+
+            console.error('Erro interno ao criar usuário:', error);
+            throw new InternalError();
+        }
     }
 
     async updateUsuario(): Promise<Usuario> {
