@@ -1,6 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { UsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
 import { buildServer } from '../index.js';
+import { UserNotFoundError } from '../errors/userNotFoundError.js';
+import { DuplicateUserError } from '../errors/duplicateUserError.js';
 
 let app: ReturnType<typeof buildServer>;
 
@@ -91,7 +93,7 @@ describe('POST /usuarios', () => {
         expect(data.created).toBe(undefined);
     });
 
-    it('should return conflict exception.', async () => {
+    it('should return duplicate user error.', async () => {
         const response = await app.inject({
             method: 'POST',
             url: `/usuarios`,
@@ -101,6 +103,45 @@ describe('POST /usuarios', () => {
             },
         });
 
-        expect(response.statusCode).toBe(409);
+        const data = JSON.parse(response.body);
+        const conflictError = new DuplicateUserError();
+
+        expect(response.statusCode).toBe(conflictError.statusCode);
+        expect(data.message).toBe(conflictError.message);
+    });
+});
+
+describe('PUT /usuarios/:id', () => {
+    const newUsario = <UsuarioDto>{
+        email: `updateuser${Date.now()}@gmail.com`,
+        nome: 'foobar',
+    };
+
+    it('should return 200 and update user.', async () => {
+        const response = await app.inject({
+            method: 'PUT',
+            url: '/usuarios/2',
+            body: newUsario,
+        });
+
+        const data = JSON.parse(response.body) as UsuarioDto;
+
+        expect(response.statusCode).toBe(200);
+        expect(data.email).toBe(newUsario.email);
+        expect(data.nome).toBe(newUsario.nome);
+    });
+
+    it('should return user not found error.', async () => {
+        const response = await app.inject({
+            method: 'PUT',
+            url: '/usuarios/999',
+            body: newUsario,
+        });
+
+        const data = JSON.parse(response.body);
+        const userNotFoundEror = new UserNotFoundError();
+
+        expect(response.statusCode).toBe(userNotFoundEror.statusCode);
+        expect(data.message).toBe(userNotFoundEror.message);
     });
 });

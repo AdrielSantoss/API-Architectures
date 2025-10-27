@@ -3,8 +3,9 @@ import { UsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
 import { UsuarioRepository } from '../repositories/usuarioRepository.js';
 import Redis from 'ioredis-mock';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js';
-import { InternalError } from '../errors/internalError.js';
+import { InternalError } from '../errors/main/internalError.js';
 import { DuplicateUserError } from '../errors/duplicateUserError.js';
+import { UserNotFoundError } from '../errors/userNotFoundError.js';
 
 export const redis = new Redis();
 
@@ -15,7 +16,7 @@ interface IUsuarioService {
         newUsuario: UsuarioDto,
         idempotencyKey?: string
     ): Promise<UsuarioDto>;
-    // updateUsuario(): Promise<Usuario>
+    updateUsuario(id: number, newUsuario: UsuarioDto): Promise<UsuarioDto>;
     // patchUsuario(): Promise<undefined>
 }
 
@@ -93,8 +94,31 @@ export class UsuarioService implements IUsuarioService {
         }
     }
 
-    async updateUsuario(): Promise<Usuario> {
-        throw new Error('Method not implemented.');
+    async updateUsuario(
+        id: number,
+        newUsuario: UsuarioDto
+    ): Promise<UsuarioDto> {
+        try {
+            const usuarioUpdated = await this.usuarioRepository.updateUsuario(
+                Number(id),
+                newUsuario
+            );
+
+            return {
+                nome: usuarioUpdated.nome,
+                email: usuarioUpdated.email,
+            } as UsuarioDto;
+        } catch (error: unknown) {
+            if (
+                error instanceof PrismaClientKnownRequestError &&
+                error.code === 'P2025'
+            ) {
+                throw new UserNotFoundError();
+            }
+
+            console.error('Erro interno ao editar usuário:', error);
+            throw new InternalError();
+        }
     }
 
     async patchUsuario(): Promise<undefined> {

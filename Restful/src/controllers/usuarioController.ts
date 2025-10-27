@@ -2,7 +2,6 @@ import { Usuario } from '@prisma/client';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { UsuarioService } from '../services/usuarioService.js';
 import { UsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
-import { AppError } from '../errors/appError.js';
 import { BaseController } from './baseController.js';
 
 interface IUsuarioController {
@@ -18,7 +17,10 @@ interface IUsuarioController {
         request: FastifyRequest,
         reply: FastifyReply
     ): Promise<undefined>;
-    updateUsuario(): Promise<Usuario>;
+    updateUsuario(
+        request: FastifyRequest,
+        reply: FastifyReply
+    ): Promise<UsuarioDto | undefined>;
     patchUsuario(): Promise<undefined>;
 }
 
@@ -76,8 +78,23 @@ export class UsuarioController
         }
     }
 
-    async updateUsuario(): Promise<Usuario> {
-        throw new Error('Method not implemented.');
+    async updateUsuario(
+        request: FastifyRequest,
+        reply: FastifyReply
+    ): Promise<UsuarioDto | undefined> {
+        try {
+            const { id } = request.params as { id: number };
+            const newUsuario = request.body as UsuarioDto;
+
+            const usuarioUpdated = await this.usuarioService.updateUsuario(
+                id,
+                newUsuario
+            );
+
+            return reply.send(usuarioUpdated);
+        } catch (error) {
+            this.throwResponseException(error, reply);
+        }
     }
 
     async patchUsuario(): Promise<undefined> {

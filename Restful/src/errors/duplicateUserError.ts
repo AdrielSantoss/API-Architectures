@@ -1,4 +1,4 @@
-import { ConflictError } from './conflictError';
+import { ConflictError } from './main/conflictError';
 
 export class DuplicateUserError extends ConflictError {
     constructor() {

@@ -7,7 +7,7 @@ interface IUsuarioSRepository {
     getUsuarios(page: number, limit: number): Promise<Usuario[] | null>;
     getUsuarioById(id: number): Promise<Usuario | null>;
     createUsuario(newUsuario: UsuarioDto): Promise<Usuario>;
-    // updateUsuario(): Promise<Usuario>
+    updateUsuario(id: number, newUsuario: UsuarioDto): Promise<Usuario>;
     // patchUsuario(): Promise<undefined>
 }
 
@@ -28,7 +28,6 @@ export class UsuarioRepository implements IUsuarioSRepository {
     }
 
     async createUsuario(newUsuario: UsuarioDto): Promise<Usuario> {
-        console.log('created!');
         return await prisma.usuario.create({
             data: {
                 nome: newUsuario.nome,
@@ -37,8 +36,16 @@ export class UsuarioRepository implements IUsuarioSRepository {
         });
     }
 
-    async updateUsuario(): Promise<Usuario> {
-        throw new Error('Method not implemented.');
+    async updateUsuario(id: number, newUsuario: UsuarioDto): Promise<Usuario> {
+        return await prisma.usuario.update({
+            where: {
+                id: id,
+            },
+            data: {
+                nome: newUsuario.nome,
+                email: newUsuario.email,
+            },
+        });
     }
 
     async patchUsuario(): Promise<undefined> {

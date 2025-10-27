@@ -6,7 +6,7 @@ export interface UsuariosDto {
     meta: PagingDto;
 }
 
-export interface NewUsuarioDto {
+export interface UsuarioDto {
     nome: string | null;
     email: string;
     created: boolean | null;

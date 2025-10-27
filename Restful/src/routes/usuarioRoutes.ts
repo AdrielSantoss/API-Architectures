@@ -50,7 +50,7 @@ export function setUsariosRoutes(
                     type: 'object',
                     required: ['email'],
                     properties: {
-                        name: { type: 'string' },
+                        nome: { type: 'string' },
                         email: { type: 'string' },
                     },
                 },
@@ -64,5 +64,22 @@ export function setUsariosRoutes(
             },
         },
         async (request, reply) => userController.createUsuario(request, reply)
+    );
+
+    app.put(
+        '/usuarios/:id',
+        {
+            schema: {
+                body: {
+                    type: 'object',
+                    required: ['email', 'nome'],
+                    properties: {
+                        nome: { type: 'string' },
+                        email: { type: 'string' },
+                    },
+                },
+            },
+        },
+        async (request, reply) => userController.updateUsuario(request, reply)
     );
 }

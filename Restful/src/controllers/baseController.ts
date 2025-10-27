@@ -1,5 +1,5 @@
 import { FastifyReply } from 'fastify';
-import { AppError } from '../errors/appError';
+import { AppError } from '../errors/main/appError';
 
 export class BaseController {
     throwResponseException(error: unknown, reply: FastifyReply) {
