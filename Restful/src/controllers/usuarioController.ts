@@ -4,30 +4,7 @@ import { UsuarioService } from '../services/usuarioService.js';
 import { UsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
 import { BaseController } from './baseController.js';
 
-interface IUsuarioController {
-    getUsuarios(
-        request: FastifyRequest,
-        reply: FastifyReply
-    ): Promise<UsuariosDto | undefined>;
-    getUsuarioById(
-        request: FastifyRequest,
-        reply: FastifyReply
-    ): Promise<Usuario | undefined>;
-    createUsuario(
-        request: FastifyRequest,
-        reply: FastifyReply
-    ): Promise<undefined>;
-    updateUsuario(
-        request: FastifyRequest,
-        reply: FastifyReply
-    ): Promise<UsuarioDto | undefined>;
-    patchUsuario(): Promise<undefined>;
-}
-
-export class UsuarioController
-    extends BaseController
-    implements IUsuarioController
-{
+export class UsuarioController extends BaseController {
     private usuarioService: UsuarioService;
 
     constructor() {

@@ -9,18 +9,7 @@ import { UserNotFoundError } from '../errors/userNotFoundError.js';
 
 export const redis = new Redis();
 
-interface IUsuarioService {
-    getUsuarios(page: number, limit: number): Promise<UsuariosDto | null>;
-    getUsuarioById(id: number): Promise<UsuarioDto | undefined>;
-    createUsuario(
-        newUsuario: UsuarioDto,
-        idempotencyKey?: string
-    ): Promise<UsuarioDto>;
-    updateUsuario(id: number, newUsuario: UsuarioDto): Promise<UsuarioDto>;
-    // patchUsuario(): Promise<undefined>
-}
-
-export class UsuarioService implements IUsuarioService {
+export class UsuarioService {
     private usuarioRepository: UsuarioRepository;
 
     constructor() {

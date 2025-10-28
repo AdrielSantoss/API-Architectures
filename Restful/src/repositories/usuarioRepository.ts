@@ -3,15 +3,7 @@ import { UsuarioDto } from '../models/usuarioDto.js';
 
 export const prisma = new PrismaClient();
 
-interface IUsuarioSRepository {
-    getUsuarios(page: number, limit: number): Promise<Usuario[] | null>;
-    getUsuarioById(id: number): Promise<Usuario | null>;
-    createUsuario(newUsuario: UsuarioDto): Promise<Usuario>;
-    updateUsuario(id: number, newUsuario: UsuarioDto): Promise<Usuario>;
-    // patchUsuario(): Promise<undefined>
-}
-
-export class UsuarioRepository implements IUsuarioSRepository {
+export class UsuarioRepository {
     async getUsuarios(page: number, limit: number) {
         return await prisma.usuario.findMany({
             skip: (page - 1) * limit,
