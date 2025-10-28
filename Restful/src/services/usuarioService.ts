@@ -17,31 +17,48 @@ export class UsuarioService {
     }
 
     async getUsuarios(page: number, limit: number) {
-        // Offset pagination with lookahead
-
-        const usuarios = await this.usuarioRepository.getUsuarios(page, limit);
-        const hasNextPage = usuarios.length == limit + 1;
-
-        usuarios.pop();
-
-        return {
-            data: usuarios,
-            meta: {
+        try {
+            // Offset pagination with lookahead
+            const usuarios = await this.usuarioRepository.getUsuarios(
                 page,
-                limit,
-                hasNextPage: hasNextPage,
-            },
-        };
+                limit
+            );
+            const hasNextPage = usuarios.length == limit + 1;
+
+            usuarios.pop();
+
+            return {
+                data: usuarios,
+                meta: {
+                    page,
+                    limit,
+                    hasNextPage: hasNextPage,
+                },
+            };
+        } catch (error) {
+            console.error('Erro interno ao consultar os usuários.', error);
+
+            throw new InternalError();
+        }
     }
 
     async getUsuarioById(id: number): Promise<UsuarioDto | undefined> {
-        const usuario = await this.usuarioRepository.getUsuarioById(id);
+        try {
+            const usuario = await this.usuarioRepository.getUsuarioById(id);
 
-        if (usuario) {
-            return {
-                nome: usuario?.nome,
-                email: usuario?.email,
-            } as UsuarioDto;
+            if (usuario) {
+                return {
+                    nome: usuario?.nome,
+                    email: usuario?.email,
+                } as UsuarioDto;
+            }
+        } catch (error) {
+            console.error(
+                'Erro interno ao consultar o usuário de id:' + id,
+                error
+            );
+
+            throw new InternalError();
         }
     }
 
@@ -57,7 +74,14 @@ export class UsuarioService {
             }
 
             if (id !== null) {
-                return (await this.getUsuarioById(Number(id))) as UsuarioDto;
+                const getUsuario = await this.usuarioRepository.getUsuarioById(
+                    Number(id)
+                );
+
+                return {
+                    nome: getUsuario!.nome,
+                    email: getUsuario!.email,
+                } as UsuarioDto;
             }
 
             const usuario = await this.usuarioRepository.createUsuario(
