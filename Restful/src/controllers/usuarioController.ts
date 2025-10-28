@@ -8,11 +8,11 @@ interface IUsuarioController {
     getUsuarios(
         request: FastifyRequest,
         reply: FastifyReply
-    ): Promise<UsuariosDto | null>;
+    ): Promise<UsuariosDto | undefined>;
     getUsuarioById(
         request: FastifyRequest,
         reply: FastifyReply
-    ): Promise<Usuario | null>;
+    ): Promise<Usuario | undefined>;
     createUsuario(
         request: FastifyRequest,
         reply: FastifyReply
@@ -39,24 +39,35 @@ export class UsuarioController
     async getUsuarios(
         request: FastifyRequest,
         reply: FastifyReply
-    ): Promise<UsuariosDto | null> {
-        const queryParams = request.query as { page?: string; limit?: string };
+    ): Promise<UsuariosDto | undefined> {
+        try {
+            const queryParams = request.query as {
+                page?: string;
+                limit?: string;
+            };
 
-        return reply.send(
-            await this.usuarioService.getUsuarios(
-                Number(queryParams.page),
-                Number(queryParams.limit)
-            )
-        );
+            return reply.send(
+                await this.usuarioService.getUsuarios(
+                    Number(queryParams.page),
+                    Number(queryParams.limit)
+                )
+            );
+        } catch (error) {
+            this.throwResponseException(error, reply);
+        }
     }
 
     async getUsuarioById(
         request: FastifyRequest,
         reply: FastifyReply
-    ): Promise<Usuario | null> {
-        const { id } = request.params as { id: number };
+    ): Promise<Usuario | undefined> {
+        try {
+            const { id } = request.params as { id: number };
 
-        return reply.send(await this.usuarioService.getUsuarioById(id));
+            return reply.send(await this.usuarioService.getUsuarioById(id));
+        } catch (error) {
+            this.throwResponseException(error, reply);
+        }
     }
 
     async createUsuario(

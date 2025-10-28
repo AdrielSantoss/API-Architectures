@@ -72,7 +72,7 @@ export function setUsariosRoutes(
             schema: {
                 body: {
                     type: 'object',
-                    required: ['email', 'nome'],
+                    required: ['email'],
                     properties: {
                         nome: { type: 'string' },
                         email: { type: 'string' },
