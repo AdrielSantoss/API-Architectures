@@ -81,4 +81,14 @@ export class UsuarioRepository {
         await redis.del(key);
         await redis.del(reverseIndex);
     }
+
+    // REDIS-CACHE
+
+    async insertUsuarioByIdRedis(id: number, usuario: UsuarioDto) {
+        await redis.set(`usuario:${id}`, JSON.stringify(usuario), 'EX', 300);
+    }
+
+    async getUsuarioByIdRedis(id: number): Promise<string | null> {
+        return await redis.get(`usuario:${id}`);
+    }
 }

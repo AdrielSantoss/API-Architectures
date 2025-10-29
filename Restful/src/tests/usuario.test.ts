@@ -49,6 +49,18 @@ describe('GET /usuarios/:id', () => {
         expect(response.statusCode).toBe(200);
         expect(data.email).toBe('alice@prisma.io');
     });
+
+    it('should return 200 and cached user "alice@prisma.io".', async () => {
+        const response = await app.inject({
+            method: 'GET',
+            url: `/usuarios/1`,
+        });
+
+        const data = JSON.parse(response.body) as UsuarioDto;
+
+        expect(response.statusCode).toBe(200);
+        expect(data.email).toBe('alice@prisma.io');
+    });
 });
 
 describe('POST /usuarios', () => {
@@ -163,7 +175,6 @@ describe('DELETE /usuarios/:id', () => {
         });
 
         const data = JSON.parse(response.body);
-        // console.log(response.body)
         const userNotFoundEror = new UserNotFoundError();
 
         expect(response.statusCode).toBe(404);

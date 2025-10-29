@@ -8,7 +8,6 @@ export function setUsariosRoutes(
     app.get(
         '/usuarios',
         {
-            // Todo: Maybe move to another function
             schema: {
                 querystring: {
                     type: 'object',

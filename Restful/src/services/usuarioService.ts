@@ -39,23 +39,26 @@ export class UsuarioService {
     }
 
     async getUsuarioById(id: number): Promise<UsuarioDto | undefined> {
-        try {
-            const usuario = await this.usuarioRepository.getUsuarioById(id);
+        const usuarioCached = await this.usuarioRepository.getUsuarioByIdRedis(
+            id
+        );
 
-            if (usuario) {
-                return {
-                    nome: usuario?.nome,
-                    email: usuario?.email,
-                } as UsuarioDto;
-            }
-        } catch (error) {
-            console.error(
-                'Erro interno ao consultar o usuário de id:' + id,
-                error
-            );
-
-            throw new InternalError();
+        if (usuarioCached) {
+            return JSON.parse(usuarioCached) as UsuarioDto;
         }
+
+        const usuario = await this.usuarioRepository.getUsuarioById(id);
+
+        if (!usuario) {
+            throw new UserNotFoundError();
+        }
+
+        await this.usuarioRepository.insertUsuarioByIdRedis(id, usuario);
+
+        return {
+            nome: usuario?.nome,
+            email: usuario?.email,
+        } as UsuarioDto;
     }
 
     async createUsuario(
