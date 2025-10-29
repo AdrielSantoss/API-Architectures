@@ -82,4 +82,19 @@ export function setUsariosRoutes(
         },
         async (request, reply) => userController.updateUsuario(request, reply)
     );
+
+    app.delete(
+        '/usuarios/:id',
+        {
+            schema: {
+                params: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'number', minimum: 1 },
+                    },
+                },
+            },
+        },
+        async (request, reply) => userController.deleteUsuario(request, reply)
+    );
 }

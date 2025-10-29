@@ -1,8 +1,7 @@
 import Fastify from 'fastify';
 import { setUsariosRoutes } from './routes/usuarioRoutes.js';
 import { UsuarioController } from './controllers/usuarioController.js';
-import { redis } from './services/usuarioService.js';
-import { prisma } from './repositories/usuarioRepository.js';
+import { prisma, redis } from './repositories/usuarioRepository.js';
 
 export const buildServer = (logger = false) => {
     let app = Fastify({ logger });

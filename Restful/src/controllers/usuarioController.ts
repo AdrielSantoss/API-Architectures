@@ -85,7 +85,18 @@ export class UsuarioController extends BaseController {
         }
     }
 
-    async patchUsuario(): Promise<undefined> {
-        throw new Error('Method not implemented.');
+    async deleteUsuario(
+        request: FastifyRequest,
+        reply: FastifyReply
+    ): Promise<undefined> {
+        try {
+            const { id } = request.params as { id: number };
+
+            await this.usuarioService.deleteUsuario(id);
+
+            return reply.code(204).send();
+        } catch (error) {
+            this.throwResponseException(error, reply);
+        }
     }
 }

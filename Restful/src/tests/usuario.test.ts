@@ -145,3 +145,28 @@ describe('PUT /usuarios/:id', () => {
         expect(data.message).toBe(userNotFoundEror.message);
     });
 });
+
+describe('DELETE /usuarios/:id', () => {
+    it('should return 200 and delete user.', async () => {
+        const response = await app.inject({
+            method: 'DELETE',
+            url: '/usuarios/3',
+        });
+
+        expect(response.statusCode).toBe(204);
+    });
+
+    it('should return user not found error.', async () => {
+        const response = await app.inject({
+            method: 'DELETE',
+            url: '/usuarios/999',
+        });
+
+        const data = JSON.parse(response.body);
+        // console.log(response.body)
+        const userNotFoundEror = new UserNotFoundError();
+
+        expect(response.statusCode).toBe(404);
+        expect(data.message).toBe(userNotFoundEror.message);
+    });
+});

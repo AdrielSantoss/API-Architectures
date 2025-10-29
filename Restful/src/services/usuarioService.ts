@@ -138,10 +138,22 @@ export class UsuarioService {
 
     async deleteUsuario(id: number): Promise<undefined> {
         try {
-            this.usuarioRepository.deleteUsuario(id);
+            await this.usuarioRepository.deleteUsuario(id);
+            await this.usuarioRepository.deleteUsuarioIdempotencyKey(id);
+        } catch (error) {
+            if (
+                error instanceof PrismaClientKnownRequestError &&
+                error.code === 'P2025'
+            ) {
+                throw new UserNotFoundError();
+            }
 
-            // excluir registro do redis aqui,
-            // encapsular operação em uma transaction do prisma
-        } catch (error) {}
+            console.error(
+                'Erro interno ao deletar o usuário de id:' + id,
+                error
+            );
+
+            throw new InternalError();
+        }
     }
 }
