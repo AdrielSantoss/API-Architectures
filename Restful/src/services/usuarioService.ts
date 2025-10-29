@@ -1,13 +1,9 @@
-import { Usuario } from '@prisma/client';
-import { UsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
+import { UsuarioDto } from '../models/usuarioDto.js';
 import { UsuarioRepository } from '../repositories/usuarioRepository.js';
-import Redis from 'ioredis-mock';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js';
 import { InternalError } from '../errors/main/internalError.js';
 import { DuplicateUserError } from '../errors/duplicateUserError.js';
 import { UserNotFoundError } from '../errors/userNotFoundError.js';
-
-export const redis = new Redis();
 
 export class UsuarioService {
     private usuarioRepository: UsuarioRepository;
@@ -70,7 +66,9 @@ export class UsuarioService {
             let id: string | null = null;
 
             if (idempotencyKey) {
-                id = await redis.get(idempotencyKey);
+                id = await this.usuarioRepository.getUsuarioIdempotencyKey(
+                    idempotencyKey
+                );
             }
 
             if (id !== null) {
@@ -88,7 +86,11 @@ export class UsuarioService {
                 newUsuario
             );
 
-            await redis.set(idempotencyKey, usuario.id, 'EX', 3600);
+            await this.usuarioRepository.createUsuarioIdempotencyKey(
+                usuario.id,
+                idempotencyKey
+            );
+
             return {
                 nome: usuario.nome,
                 email: usuario.email,
@@ -134,7 +136,12 @@ export class UsuarioService {
         }
     }
 
-    async patchUsuario(): Promise<undefined> {
-        throw new Error('Method not implemented.');
+    async deleteUsuario(id: number): Promise<undefined> {
+        try {
+            this.usuarioRepository.deleteUsuario(id);
+
+            // excluir registro do redis aqui,
+            // encapsular operação em uma transaction do prisma
+        } catch (error) {}
     }
 }

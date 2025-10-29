@@ -1,7 +1,9 @@
 import { PrismaClient, Usuario } from '@prisma/client';
 import { UsuarioDto } from '../models/usuarioDto.js';
+import Redis from 'ioredis-mock';
 
 export const prisma = new PrismaClient();
+export const redis = new Redis();
 
 export class UsuarioRepository {
     async getUsuarios(page: number, limit: number) {
@@ -40,7 +42,19 @@ export class UsuarioRepository {
         });
     }
 
-    async patchUsuario(): Promise<undefined> {
-        throw new Error('Method not implemented.');
+    async deleteUsuario(id: number): Promise<undefined> {
+        await prisma.usuario.delete({
+            where: {
+                id: id,
+            },
+        });
+    }
+
+    async getUsuarioIdempotencyKey(key: string): Promise<string | null> {
+        return await redis.get(key);
+    }
+
+    async createUsuarioIdempotencyKey(id: number, key: string) {
+        return await redis.set(key, id, 'EX', 3600);
     }
 }
