@@ -1,4 +1,4 @@
-import { UsuarioDto } from '../models/usuarioDto.js';
+import { UsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
 import { UsuarioRepository } from '../repositories/usuarioRepository.js';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js';
 import { InternalError } from '../errors/main/internalError.js';
@@ -12,8 +12,18 @@ export class UsuarioService {
         this.usuarioRepository = new UsuarioRepository();
     }
 
-    async getUsuarios(page: number, limit: number) {
+    async getUsuarios(
+        page: number,
+        limit: number
+    ): Promise<UsuariosDto | null> {
         try {
+            const usuariosCached =
+                await this.usuarioRepository.getUsuariosRedis(page, limit);
+
+            if (usuariosCached) {
+                return JSON.parse(usuariosCached) as UsuariosDto;
+            }
+
             // Offset pagination with lookahead
             const usuarios = await this.usuarioRepository.getUsuarios(
                 page,
@@ -23,14 +33,22 @@ export class UsuarioService {
 
             usuarios.pop();
 
-            return {
+            const usuariosDto = {
                 data: usuarios,
                 meta: {
                     page,
                     limit,
                     hasNextPage: hasNextPage,
                 },
-            };
+            } as UsuariosDto;
+
+            await this.usuarioRepository.insertUsuariosRedis(
+                page,
+                limit,
+                usuariosDto
+            );
+
+            return usuariosDto;
         } catch (error) {
             console.error('Erro interno ao consultar os usuários.', error);
 

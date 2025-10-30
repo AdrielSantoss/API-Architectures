@@ -1,5 +1,5 @@
 import { PrismaClient, Usuario } from '@prisma/client';
-import { UsuarioDto } from '../models/usuarioDto.js';
+import { UsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
 import Redis from 'ioredis-mock';
 
 export const prisma = new PrismaClient();
@@ -53,7 +53,7 @@ export class UsuarioRepository {
         });
     }
 
-    // REDIS
+    // REDIS-IDEMPOTENCYKEY
 
     async getUsuarioIdempotencyKey(key: string): Promise<string | null> {
         return await redis.get(`${idempotencyKeyPrefix}${key}`);
@@ -85,10 +85,30 @@ export class UsuarioRepository {
     // REDIS-CACHE
 
     async insertUsuarioByIdRedis(id: number, usuario: UsuarioDto) {
-        await redis.set(`usuario:${id}`, JSON.stringify(usuario), 'EX', 300);
+        await redis.set(`usuarios:${id}`, JSON.stringify(usuario), 'EX', 300);
     }
 
     async getUsuarioByIdRedis(id: number): Promise<string | null> {
-        return await redis.get(`usuario:${id}`);
+        return await redis.get(`usuarios:${id}`);
+    }
+
+    async insertUsuariosRedis(
+        page: number,
+        limit: number,
+        usuarios: UsuariosDto
+    ): Promise<string | null> {
+        return await redis.set(
+            `usuarios:page:${page}:limit:${limit}`,
+            JSON.stringify(usuarios),
+            'EX',
+            300
+        );
+    }
+
+    async getUsuariosRedis(
+        page: number,
+        limit: number
+    ): Promise<string | null> {
+        return await redis.get(`usuarios:page:${page}:limit:${limit}`);
     }
 }

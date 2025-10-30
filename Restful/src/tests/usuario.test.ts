@@ -16,7 +16,10 @@ afterAll(async () => {
 });
 
 describe('GET /usuarios', () => {
-    it('should return 200 and "Alice" user.', async () => {
+    it.each([
+        { name: 'should return 200 and "Alice" user (first request)' },
+        { name: 'should return 200 and cached user (second request)' },
+    ])('$name', async () => {
         const limit = 10;
         const page = 1;
 
@@ -29,7 +32,6 @@ describe('GET /usuarios', () => {
 
         expect(response.statusCode).toBe(200);
         expect(data.data![0].nome).toBe('Alice');
-
         expect(data.data!.length).toBe(limit);
         expect(data.meta.limit).toBe(limit);
         expect(data.meta.page).toBe(page);
@@ -38,19 +40,10 @@ describe('GET /usuarios', () => {
 });
 
 describe('GET /usuarios/:id', () => {
-    it('should return 200 and "alice@prisma.io".', async () => {
-        const response = await app.inject({
-            method: 'GET',
-            url: `/usuarios/1`,
-        });
-
-        const data = JSON.parse(response.body) as UsuarioDto;
-
-        expect(response.statusCode).toBe(200);
-        expect(data.email).toBe('alice@prisma.io');
-    });
-
-    it('should return 200 and cached user "alice@prisma.io".', async () => {
+    it.each([
+        'should return 200 and "alice@prisma.io"',
+        'should return 200 and cached user "alice@prisma.io"',
+    ])('%s', async () => {
         const response = await app.inject({
             method: 'GET',
             url: `/usuarios/1`,
