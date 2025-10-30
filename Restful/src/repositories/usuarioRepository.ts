@@ -7,6 +7,7 @@ export const redis = new Redis();
 
 const idempotencyKeyPrefix: string = 'idempotency:';
 const idempotencyUsuarioIdPrefix: string = 'idempotency:usuario:';
+const cacheUsuariosPrefix: string = 'usuarios:';
 
 export class UsuarioRepository {
     async getUsuarios(page: number, limit: number) {
@@ -85,11 +86,16 @@ export class UsuarioRepository {
     // REDIS-CACHE
 
     async insertUsuarioByIdRedis(id: number, usuario: UsuarioDto) {
-        await redis.set(`usuarios:${id}`, JSON.stringify(usuario), 'EX', 300);
+        await redis.set(
+            `${cacheUsuariosPrefix}${id}`,
+            JSON.stringify(usuario),
+            'EX',
+            300
+        );
     }
 
     async getUsuarioByIdRedis(id: number): Promise<string | null> {
-        return await redis.get(`usuarios:${id}`);
+        return await redis.get(`${cacheUsuariosPrefix}${id}`);
     }
 
     async insertUsuariosRedis(
@@ -98,7 +104,7 @@ export class UsuarioRepository {
         usuarios: UsuariosDto
     ): Promise<string | null> {
         return await redis.set(
-            `usuarios:page:${page}:limit:${limit}`,
+            `${cacheUsuariosPrefix}page:${page}:limit:${limit}`,
             JSON.stringify(usuarios),
             'EX',
             300
@@ -109,6 +115,8 @@ export class UsuarioRepository {
         page: number,
         limit: number
     ): Promise<string | null> {
-        return await redis.get(`usuarios:page:${page}:limit:${limit}`);
+        return await redis.get(
+            `${cacheUsuariosPrefix}page:${page}:limit:${limit}`
+        );
     }
 }
