@@ -1,0 +1,114 @@
+{
+    "usuarios": [
+        { "nome": "Alice", "email": "alice@prisma.io" },
+        { "nome": "bob", "email": "bob@prisma.io" },
+        { "nome": "Carlos", "email": "carlos@prisma.io" },
+        { "nome": "Daniel", "email": "daniel@prisma.io" },
+        { "nome": "Elena", "email": "elena@prisma.io" },
+        { "nome": "Fábio", "email": "fabio@prisma.io" },
+        { "nome": "Gabriela", "email": "gabriela@prisma.io" },
+        { "nome": "Henrique", "email": "henrique@prisma.io" },
+        { "nome": "Isabela", "email": "isabela@prisma.io" },
+        { "nome": "João", "email": "joao@prisma.io" },
+        { "nome": "Karina", "email": "karina@prisma.io" },
+        { "nome": "Lucas", "email": "lucas@prisma.io" },
+        { "nome": "Mariana", "email": "mariana@prisma.io" },
+        { "nome": "Nicolas", "email": "nicolas@prisma.io" },
+        { "nome": "Olivia", "email": "olivia@prisma.io" },
+        { "nome": "Paulo", "email": "paulo@prisma.io" },
+        { "nome": "Quintino", "email": "quintino@prisma.io" }
+    ],
+
+    "boardgames": [
+        {
+            "nome": "Catan",
+            "descricao": "Construa assentamentos e troque recursos em uma ilha em expansão.",
+            "complexidade": 2,
+            "idade": 10,
+            "tempo": 90,
+            "ano": 1995,
+            "usuarioId": 1
+        },
+        {
+            "nome": "Ticket to Ride",
+            "descricao": "Construa rotas ferroviárias conectando cidades e conquiste pontos.",
+            "complexidade": 2,
+            "idade": 8,
+            "tempo": 60,
+            "ano": 2004,
+            "usuarioId": 1
+        },
+        {
+            "nome": "Carcassonne",
+            "descricao": "Monte cidades medievais e campos para pontuar mais que seus adversários.",
+            "complexidade": 1,
+            "idade": 7,
+            "tempo": 45,
+            "ano": 2000,
+            "usuarioId": 1
+        },
+        {
+            "nome": "Pandemic",
+            "descricao": "Trabalhe em equipe para conter surtos globais de doenças.",
+            "complexidade": 3,
+            "idade": 10,
+            "tempo": 60,
+            "ano": 2008,
+            "usuarioId": 1
+        },
+        {
+            "nome": "Azul",
+            "descricao": "Monte padrões coloridos de azulejos e maximize sua pontuação.",
+            "complexidade": 2,
+            "idade": 8,
+            "tempo": 40,
+            "ano": 2017,
+            "usuarioId": 1
+        },
+        {
+            "nome": "7 Wonders",
+            "descricao": "Construa civilizações antigas e desenvolva sua cidade ao longo de três eras.",
+            "complexidade": 3,
+            "idade": 10,
+            "tempo": 30,
+            "ano": 2010,
+            "usuarioId": 1
+        },
+        {
+            "nome": "Dixit",
+            "descricao": "Use a imaginação para descrever cartas e adivinhar as dos outros jogadores.",
+            "complexidade": 1,
+            "idade": 8,
+            "tempo": 30,
+            "ano": 2008,
+            "usuarioId": 1
+        },
+        {
+            "nome": "Gloomhaven",
+            "descricao": "Aventure-se em masmorras com personagens e narrativas evolutivas.",
+            "complexidade": 5,
+            "idade": 14,
+            "tempo": 120,
+            "ano": 2017,
+            "usuarioId": 1
+        },
+        {
+            "nome": "Splendor",
+            "descricao": "Gerencie recursos e compre cartas de desenvolvimento para pontuar.",
+            "complexidade": 2,
+            "idade": 10,
+            "tempo": 30,
+            "ano": 2014,
+            "usuarioId": 1
+        },
+        {
+            "nome": "Terraforming Mars",
+            "descricao": "Transforme Marte em um planeta habitável através de corporações rivais.",
+            "complexidade": 4,
+            "idade": 12,
+            "tempo": 120,
+            "ano": 2016,
+            "usuarioId": 1
+        }
+    ]
+}
