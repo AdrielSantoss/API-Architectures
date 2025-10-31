@@ -33,7 +33,7 @@ export function setUsariosRoutes(
                 params: {
                     type: 'object',
                     properties: {
-                        id: { type: 'number', minimum: 1 },
+                        id: { type: 'number', minimum: 0 },
                     },
                 },
             },
@@ -69,6 +69,12 @@ export function setUsariosRoutes(
         '/usuarios/:id',
         {
             schema: {
+                params: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'number', minimum: 0 },
+                    },
+                },
                 body: {
                     type: 'object',
                     required: ['email'],
