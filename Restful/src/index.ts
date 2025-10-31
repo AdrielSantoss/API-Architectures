@@ -2,11 +2,14 @@ import Fastify from 'fastify';
 import { setUsariosRoutes } from './routes/usuarioRoutes.js';
 import { UsuarioController } from './controllers/usuarioController.js';
 import { prisma, redis } from './repositories/usuarioRepository.js';
+import { BoardgameController } from './controllers/boardgameController.js';
+import { setBoardgameRoutes } from './routes/boardgameRoutes.js';
 
 export const buildServer = (logger = false) => {
     let app = Fastify({ logger });
 
     setUsariosRoutes(app, new UsuarioController());
+    setBoardgameRoutes(app, new BoardgameController());
 
     return app;
 };
