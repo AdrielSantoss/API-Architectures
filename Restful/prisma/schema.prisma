@@ -2,9 +2,22 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 model Usuario {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  nome  String?
+  id        Int         @id @default(autoincrement())
+  email     String      @unique
+  nome      String?
+  Boardgame Boardgame[]
+}
+
+model Boardgame {
+  id           Int     @id @default(autoincrement())
+  nome         String  @unique
+  descricao    String
+  complexidade Int
+  idade        Int?
+  tempo        Int?
+  ano          Int?
+  usuario      Usuario @relation(fields: [usuarioId], references: [id])
+  usuarioId    Int
 }
 
 generator client {
