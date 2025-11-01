@@ -14,4 +14,6 @@ export interface BoardgameDto {
     tempo: number | null;
     ano?: number | null;
     created?: boolean;
+    createdAt?: boolean;
+    updatedAt?: boolean;
 }

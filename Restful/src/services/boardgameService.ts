@@ -1,7 +1,5 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js';
 import { InternalError } from '../errors/main/internalError.js';
-import { DuplicateUserError } from '../errors/duplicateUserError.js';
-import { UserNotFoundError } from '../errors/userNotFoundError.js';
 import { BoardgameRepository } from '../repositories/boardgameRepository.js';
 import { BoardgameDto, BoardgamesDto } from '../models/boardgameDto.js';
 import { BoardgameNotFoundError } from '../errors/boardgameNotFoundError.js';
