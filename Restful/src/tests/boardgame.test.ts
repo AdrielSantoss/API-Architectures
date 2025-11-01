@@ -172,7 +172,7 @@ describe('DELETE /boardgames/:id', () => {
         const data = JSON.parse(response.body);
         const boardgameNotFoundError = new BoardgameNotFoundError();
 
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toBe(boardgameNotFoundError.statusCode);
         expect(data.message).toBe(boardgameNotFoundError.message);
     });
 });

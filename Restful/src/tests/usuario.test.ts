@@ -170,7 +170,7 @@ describe('DELETE /usuarios/:id', () => {
         const data = JSON.parse(response.body);
         const userNotFoundEror = new UserNotFoundError();
 
-        expect(response.statusCode).toBe(404);
+        expect(response.statusCode).toBe(userNotFoundEror.statusCode);
         expect(data.message).toBe(userNotFoundEror.message);
     });
 });
