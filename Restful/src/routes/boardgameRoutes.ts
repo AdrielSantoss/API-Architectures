@@ -5,6 +5,7 @@ export function setBoardgameRoutes(
     app: FastifyInstance,
     boardgameController: BoardgameController
 ) {
+    // implementar http-cache
     app.get(
         '/boardgames',
         {

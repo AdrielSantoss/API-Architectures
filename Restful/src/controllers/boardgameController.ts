@@ -4,12 +4,12 @@ import { BoardgameService } from '../services/boardgameService.js';
 import { BoardgameDto } from '../models/boardgameDto.js';
 
 export class BoardgameController extends BaseController {
-    private Boardgameervice: BoardgameService;
+    private boardgameService: BoardgameService;
 
     constructor() {
         super();
 
-        this.Boardgameervice = new BoardgameService();
+        this.boardgameService = new BoardgameService();
     }
 
     async getBoardgames(
@@ -23,7 +23,7 @@ export class BoardgameController extends BaseController {
             };
 
             return reply.send(
-                await this.Boardgameervice.getBoardgames(
+                await this.boardgameService.getBoardgames(
                     Number(queryParams.page),
                     Number(queryParams.limit)
                 )
@@ -40,7 +40,7 @@ export class BoardgameController extends BaseController {
         try {
             const { id } = request.params as { id: number };
 
-            return reply.send(await this.Boardgameervice.getBoardgameById(id));
+            return reply.send(await this.boardgameService.getBoardgameById(id));
         } catch (error) {
             this.throwResponseException(error, reply);
         }
@@ -55,7 +55,7 @@ export class BoardgameController extends BaseController {
             const idempotencykey = request.headers.idempotencykey as string;
             const { usuarioId } = request.params as { usuarioId: number };
 
-            const Boardgame = await this.Boardgameervice.createBoardgame(
+            const Boardgame = await this.boardgameService.createBoardgame(
                 newBoardgame,
                 usuarioId,
                 idempotencykey
@@ -75,10 +75,8 @@ export class BoardgameController extends BaseController {
             const { id } = request.params as { id: number };
             const newBoardgame = request.body as BoardgameDto;
 
-            const BoardgameUpdated = await this.Boardgameervice.updateBoardgame(
-                id,
-                newBoardgame
-            );
+            const BoardgameUpdated =
+                await this.boardgameService.updateBoardgame(id, newBoardgame);
 
             return reply.send(BoardgameUpdated);
         } catch (error) {
@@ -93,7 +91,7 @@ export class BoardgameController extends BaseController {
         try {
             const { id } = request.params as { id: number };
 
-            await this.Boardgameervice.deleteBoardgame(id);
+            await this.boardgameService.deleteBoardgame(id);
 
             return reply.code(204).send();
         } catch (error) {
