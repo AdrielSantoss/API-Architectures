@@ -49,6 +49,7 @@ export function setBoardgameRoutes(
             schema: {
                 params: {
                     type: 'object',
+                    required: ['usuarioId'],
                     properties: {
                         usuarioId: { type: 'number', minimum: 0 },
                     },
@@ -59,10 +60,10 @@ export function setBoardgameRoutes(
                     properties: {
                         nome: { type: 'string' },
                         descricao: { type: 'string' },
-                        complexidade: { type: 'string' },
-                        idade: { type: 'string' },
-                        tempo: { type: 'string' },
-                        ano: { type: 'string' },
+                        complexidade: { type: 'number' },
+                        idade: { type: 'number' },
+                        tempo: { type: 'number' },
+                        ano: { type: 'number' },
                     },
                 },
                 headers: {
@@ -88,10 +89,10 @@ export function setBoardgameRoutes(
                     properties: {
                         nome: { type: 'string' },
                         descricao: { type: 'string' },
-                        complexidade: { type: 'string' },
-                        idade: { type: 'string' },
-                        tempo: { type: 'string' },
-                        ano: { type: 'string' },
+                        complexidade: { type: 'number' },
+                        idade: { type: 'number' },
+                        tempo: { type: 'number' },
+                        ano: { type: 'number' },
                     },
                 },
             },
