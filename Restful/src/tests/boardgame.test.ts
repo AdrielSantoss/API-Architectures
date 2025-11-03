@@ -29,10 +29,9 @@ describe('GET /boardgames', () => {
 });
 
 describe('GET /boardgame/:id', () => {
-    it.each([
-        'should return 200 and "Terraforming Mars"',
-        'should return 200 and cached boardgame "Terraforming Mars"',
-    ])('%s', async () => {
+    let etag: string | undefined;
+
+    it('should return 200 and "Terraforming Mars"', async () => {
         const response = await app.inject({
             method: 'GET',
             url: `/boardgames/10`,
@@ -42,6 +41,22 @@ describe('GET /boardgame/:id', () => {
 
         expect(response.statusCode).toBe(200);
         expect(data.nome).toBe('Terraforming Mars');
+        expect(response.headers['cache-control']).toBe('public, max-age=60');
+        expect(response.headers['etag']).toBeDefined();
+
+        etag = response.headers['etag'];
+    });
+
+    it('should return 304 not modified.', async () => {
+        const response = await app.inject({
+            method: 'GET',
+            url: `/boardgames/10`,
+            headers: {
+                'if-none-match': etag,
+            },
+        });
+
+        expect(response.statusCode).toBe(304);
     });
 });
 

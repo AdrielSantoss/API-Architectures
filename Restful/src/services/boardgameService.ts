@@ -1,7 +1,11 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js';
 import { InternalError } from '../errors/main/internalError.js';
 import { BoardgameRepository } from '../repositories/boardgameRepository.js';
-import { BoardgameDto, BoardgamesDto } from '../models/boardgameDto.js';
+import {
+    BoardgameCachedDto,
+    BoardgameDto,
+    BoardgamesDto,
+} from '../models/boardgameDto.js';
 import { BoardgameNotFoundError } from '../errors/boardgameNotFoundError.js';
 import { DuplicateBoardgameError } from '../errors/duplicateBoardgameError.js';
 
@@ -55,12 +59,15 @@ export class BoardgameService {
         }
     }
 
-    async getBoardgameById(id: number): Promise<BoardgameDto | undefined> {
-        const boardgameCached =
-            await this.BoardgameRepository.getBoardgameByIdRedis(id);
+    async getBoardgameById(
+        id: number,
+        ifNoneMatch?: string
+    ): Promise<BoardgameCachedDto | undefined> {
+        const cachedEtag =
+            await this.BoardgameRepository.getBoardgameByIdRedisEtag(id);
 
-        if (boardgameCached) {
-            return JSON.parse(boardgameCached) as BoardgameDto;
+        if (ifNoneMatch && ifNoneMatch === cachedEtag) {
+            return undefined;
         }
 
         const boardgame = await this.BoardgameRepository.getBoardgameById(id);
@@ -69,9 +76,11 @@ export class BoardgameService {
             throw new BoardgameNotFoundError();
         }
 
-        await this.BoardgameRepository.insertBoardgameByIdRedis(id, boardgame);
+        const etag = `${boardgame.id}:${boardgame.updatedAt.toISOString()}`;
 
-        return boardgame as BoardgameDto;
+        await this.BoardgameRepository.insertBoardgameByIdRedisEtag(id, etag);
+
+        return { boardgame, etag } as BoardgameCachedDto;
     }
 
     async createBoardgame(

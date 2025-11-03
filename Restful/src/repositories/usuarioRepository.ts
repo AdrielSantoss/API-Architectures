@@ -90,7 +90,7 @@ export class UsuarioRepository {
             `${cacheUsuariosPrefix}${id}`,
             JSON.stringify(usuario),
             'EX',
-            300
+            60
         );
     }
 
@@ -107,7 +107,7 @@ export class UsuarioRepository {
             `${cacheUsuariosPrefix}page:${page}:limit:${limit}`,
             JSON.stringify(usuarios),
             'EX',
-            300
+            60
         );
     }
 

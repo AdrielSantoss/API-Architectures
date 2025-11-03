@@ -14,6 +14,11 @@ export interface BoardgameDto {
     tempo: number | null;
     ano?: number | null;
     created?: boolean;
-    createdAt?: boolean;
-    updatedAt?: boolean;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
+
+export interface BoardgameCachedDto {
+    boardgame: BoardgameDto;
+    etag: string;
 }

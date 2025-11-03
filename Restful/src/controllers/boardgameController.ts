@@ -39,8 +39,21 @@ export class BoardgameController extends BaseController {
     ): Promise<BoardgameDto | undefined> {
         try {
             const { id } = request.params as { id: number };
+            const ifNoneMatch = request.headers['if-none-match'];
 
-            return reply.send(await this.boardgameService.getBoardgameById(id));
+            const result = await this.boardgameService.getBoardgameById(
+                id,
+                ifNoneMatch
+            );
+
+            if (!result) {
+                reply.code(304).send();
+                return;
+            }
+
+            reply.header('Cache-Control', 'public, max-age=60');
+            reply.header('ETag', result.etag);
+            return reply.send(result.boardgame);
         } catch (error) {
             this.throwResponseException(error, reply);
         }

@@ -100,17 +100,12 @@ export class BoardgameRepository {
 
     // REDIS-CACHE
 
-    async insertBoardgameByIdRedis(id: number, boardgame: BoardgameDto) {
-        await redis.set(
-            `${cacheBoardgamesPrefix}${id}`,
-            JSON.stringify(boardgame),
-            'EX',
-            300
-        );
+    async getBoardgameByIdRedisEtag(id: number): Promise<string | null> {
+        return redis.get(`${cacheBoardgamesPrefix}${id}:etag`);
     }
 
-    async getBoardgameByIdRedis(id: number): Promise<string | null> {
-        return await redis.get(`${cacheBoardgamesPrefix}${id}`);
+    async insertBoardgameByIdRedisEtag(id: number, etag: string) {
+        await redis.set(`${cacheBoardgamesPrefix}${id}:etag`, etag, 'EX', 60);
     }
 
     async insertBoardgamesRedis(
@@ -122,7 +117,7 @@ export class BoardgameRepository {
             `${cacheBoardgamesPrefix}page:${page}:limit:${limit}`,
             JSON.stringify(boardgames),
             'EX',
-            300
+            60
         );
     }
 
