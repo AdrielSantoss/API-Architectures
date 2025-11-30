@@ -10,11 +10,12 @@ describe('GET /boardgames', () => {
         { name: 'should return 200 and cached boardgame (second request)' },
     ])('$name', async () => {
         const limit = 5;
-        const page = 1;
+        const createdAt = new Date();
+        createdAt.setHours(createdAt.getHours() - 2);
 
         const response = await app.inject({
             method: 'GET',
-            url: `/boardgames?page=${page}&limit=${limit}`,
+            url: `/boardgames?createdAt=${createdAt.toISOString()}&limit=${limit}`,
         });
 
         const data = JSON.parse(response.body) as BoardgamesDto;
@@ -23,7 +24,6 @@ describe('GET /boardgames', () => {
         expect(data.data![0].nome).toBe('Catan');
         expect(data.data!.length).toBe(limit);
         expect(data.meta.limit).toBe(limit);
-        expect(data.meta.page).toBe(page);
         expect(data.meta.hasNextPage).toBe(true);
     });
 });

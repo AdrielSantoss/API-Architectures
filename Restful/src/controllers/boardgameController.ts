@@ -18,14 +18,16 @@ export class BoardgameController extends BaseController {
     ): Promise<BoardgameDto | undefined> {
         try {
             const queryParams = request.query as {
-                page?: string;
-                limit?: string;
+                limit?: number;
+                createdAt?: string;
             };
 
             return reply.send(
                 await this.boardgameService.getBoardgames(
-                    Number(queryParams.page),
-                    Number(queryParams.limit)
+                    Number(queryParams.limit),
+                    queryParams.createdAt
+                        ? new Date(queryParams.createdAt!)
+                        : undefined
                 )
             );
         } catch (error) {

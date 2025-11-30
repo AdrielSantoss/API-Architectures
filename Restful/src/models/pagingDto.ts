@@ -1,5 +1,5 @@
 export interface PagingDto {
     limit: number;
-    page: number;
+    page?: number;
     hasNextPage: boolean;
 }

@@ -5,7 +5,6 @@ export function setBoardgameRoutes(
     app: FastifyInstance,
     boardgameController: BoardgameController
 ) {
-    // implementar http-cache
     app.get(
         '/boardgames',
         {
@@ -13,13 +12,8 @@ export function setBoardgameRoutes(
                 querystring: {
                     type: 'object',
                     properties: {
-                        page: { type: 'integer', minimum: 1, default: 1 },
-                        limit: {
-                            type: 'integer',
-                            minimum: 1,
-                            maximum: 10,
-                            default: 10,
-                        },
+                        limit: { type: 'integer', minimum: 1, default: 1 },
+                        createdAt: { type: 'string', format: 'date-time' },
                     },
                 },
             },

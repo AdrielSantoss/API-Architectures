@@ -17,19 +17,22 @@ export class BoardgameService {
     }
 
     async getBoardgames(
-        page: number,
-        limit: number
+        limit: number,
+        createdAt?: Date | undefined
     ): Promise<BoardgamesDto | null> {
         try {
             const boardgamesCached =
-                await this.BoardgameRepository.getBoardgamesRedis(page, limit);
+                await this.BoardgameRepository.getBoardgamesRedis(
+                    createdAt,
+                    limit
+                );
 
             if (boardgamesCached) {
                 return JSON.parse(boardgamesCached) as BoardgamesDto;
             }
 
             const boardgames = await this.BoardgameRepository.getBoardgames(
-                page,
+                createdAt,
                 limit
             );
             const hasNextPage = boardgames.length == limit + 1;
@@ -39,14 +42,13 @@ export class BoardgameService {
             const boardgameDto = {
                 data: boardgames,
                 meta: {
-                    page,
                     limit,
                     hasNextPage: hasNextPage,
                 },
             } as BoardgamesDto;
 
             await this.BoardgameRepository.insertBoardgamesRedis(
-                page,
+                createdAt,
                 limit,
                 boardgameDto
             );

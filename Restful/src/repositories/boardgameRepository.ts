@@ -10,9 +10,13 @@ const idempotencyBoardgameIdPrefix: string = 'idempotency:boardgame:';
 const cacheBoardgamesPrefix: string = 'boardgames:';
 
 export class BoardgameRepository {
-    async getBoardgames(page: number, limit: number) {
+    async getBoardgames(createdAt: Date | undefined, limit: number) {
         return await prisma.boardgame.findMany({
-            skip: (page - 1) * limit,
+            where: {
+                createdAt: {
+                    gte: createdAt,
+                },
+            },
             take: limit + 1,
         });
     }
@@ -109,12 +113,12 @@ export class BoardgameRepository {
     }
 
     async insertBoardgamesRedis(
-        page: number,
+        createdAt: Date | undefined,
         limit: number,
         boardgames: BoardgamesDto
     ): Promise<string | null> {
         return await redis.set(
-            `${cacheBoardgamesPrefix}page:${page}:limit:${limit}`,
+            `${cacheBoardgamesPrefix}page:${createdAt?.toISOString()}:limit:${limit}`,
             JSON.stringify(boardgames),
             'EX',
             60
@@ -122,11 +126,11 @@ export class BoardgameRepository {
     }
 
     async getBoardgamesRedis(
-        page: number,
+        createdAt: Date | undefined,
         limit: number
     ): Promise<string | null> {
         return await redis.get(
-            `${cacheBoardgamesPrefix}page:${page}:limit:${limit}`
+            `${cacheBoardgamesPrefix}createdAt:${createdAt?.toISOString()}:limit:${limit}`
         );
     }
 }
