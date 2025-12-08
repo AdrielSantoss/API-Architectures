@@ -38,6 +38,10 @@ export function setBoardgameRoutes(
             boardgameController.getBoardgameById(request, reply)
     );
 
+    app.get('/boardgames/rulebook/example', {}, async (request, reply) =>
+        boardgameController.getBoardgameRulebook(request, reply)
+    );
+
     app.post(
         '/boardgames/:usuarioId',
         {

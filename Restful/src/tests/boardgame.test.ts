@@ -3,6 +3,7 @@ import { app } from '../../vitest.setup.js';
 import { BoardgameDto, BoardgamesDto } from '../models/boardgameDto.js';
 import { DuplicateBoardgameError } from '../errors/duplicateBoardgameError.js';
 import { BoardgameNotFoundError } from '../errors/boardgameNotFoundError.js';
+import { Readable } from 'node:stream';
 
 describe('GET /boardgames', () => {
     it.each([
@@ -57,6 +58,26 @@ describe('GET /boardgame/:id', () => {
         });
 
         expect(response.statusCode).toBe(304);
+    });
+});
+
+describe('GET /boardgames/rulebook/example', () => {
+    it('should return 200 and PDF stream', async () => {
+        const response = await app.inject({
+            method: 'GET',
+            url: `/boardgames/rulebook/example`,
+        });
+
+        expect(response.statusCode).toBe(200);
+
+        expect(response.headers['content-type']).toBe('application/pdf');
+
+        expect(Buffer.isBuffer(response.rawPayload)).toBe(true);
+
+        const payload = response.rawPayload.toString('utf8', 0, 4);
+        expect(payload).toBe('%PDF');
+
+        expect(response.headers['transfer-encoding']).toBe('chunked');
     });
 });
 

@@ -61,6 +61,21 @@ export class BoardgameController extends BaseController {
         }
     }
 
+    async getBoardgameRulebook(
+        _: FastifyRequest,
+        reply: FastifyReply
+    ): Promise<BoardgameDto | undefined> {
+        try {
+            reply.type('application/pdf');
+
+            return reply.send(
+                await this.boardgameService.getBoardgameRulebook()
+            );
+        } catch (error) {
+            this.throwResponseException(error, reply);
+        }
+    }
+
     async createBoardgame(
         request: FastifyRequest,
         reply: FastifyReply

@@ -8,6 +8,8 @@ import {
 } from '../models/boardgameDto.js';
 import { BoardgameNotFoundError } from '../errors/boardgameNotFoundError.js';
 import { DuplicateBoardgameError } from '../errors/duplicateBoardgameError.js';
+import path from 'path';
+import fs, { ReadStream } from 'fs';
 
 export class BoardgameService {
     private BoardgameRepository: BoardgameRepository;
@@ -83,6 +85,12 @@ export class BoardgameService {
         await this.BoardgameRepository.insertBoardgameByIdRedisEtag(id, etag);
 
         return { boardgame, etag } as BoardgameCachedDto;
+    }
+
+    async getBoardgameRulebook(): Promise<ReadStream | undefined> {
+        return fs.createReadStream(
+            path.join(__dirname, '..', 'assets', 'rulebook-example.pdf')
+        );
     }
 
     async createBoardgame(
