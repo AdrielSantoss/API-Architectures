@@ -97,6 +97,44 @@ export class BoardgameController extends BaseController {
         }
     }
 
+    async createBoardgamesBatch(
+        request: FastifyRequest,
+        reply: FastifyReply
+    ): Promise<undefined> {
+        try {
+            const boardgames = request.body as BoardgameDto[];
+            const idempotencykey = request.headers.idempotencykey as string;
+            const { usuarioId } = request.params as { usuarioId: number };
+
+            const results = [];
+
+            for (const boardgame of boardgames) {
+                const result = await this.boardgameService.createBoardgame(
+                    boardgame,
+                    usuarioId,
+                    idempotencykey
+                );
+
+                results.push({
+                    input: boardgame,
+                    result,
+                });
+            }
+
+            const hasCreated = results.some((r) => r.result?.created);
+            const hasExisting = results.some((r) => !r.result?.created);
+
+            return reply.code(hasCreated ? 201 : 200).send({
+                total: boardgames.length,
+                created: results.filter((r) => r.result?.created).length,
+                existing: results.filter((r) => !r.result?.created).length,
+                items: results,
+            });
+        } catch (error) {
+            this.throwResponseException(error, reply);
+        }
+    }
+
     async updateBoardgame(
         request: FastifyRequest,
         reply: FastifyReply

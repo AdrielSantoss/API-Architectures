@@ -148,6 +148,26 @@ export class BoardgameService {
         }
     }
 
+    async createBoardgamesBatch(
+        newBoardgames: BoardgameDto[],
+        usuarioId: number,
+        idempotencyKey: string
+    ): Promise<BoardgameDto[]> {
+        const results: BoardgameDto[] = [];
+
+        for (const newBoardgame of newBoardgames) {
+            const result = await this.createBoardgame(
+                newBoardgame,
+                usuarioId,
+                idempotencyKey
+            );
+
+            results.push(result);
+        }
+
+        return results;
+    }
+
     async updateBoardgame(
         id: number,
         newBoardgame: BoardgameDto
