@@ -1,9 +1,6 @@
 import { PrismaClient, Usuario } from '@prisma/client';
 import { UsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
-import Redis from 'ioredis-mock';
-
-export const prisma = new PrismaClient();
-export const redis = new Redis();
+import { prisma, redis } from '../index.js';
 
 const idempotencyKeyPrefix: string = 'idempotency:';
 const idempotencyUsuarioIdPrefix: string = 'idempotency:usuario:';
@@ -67,8 +64,19 @@ export class UsuarioRepository {
         const idempotencyKey = `${idempotencyKeyPrefix}${key}`;
         const reverseIndex = `${idempotencyUsuarioIdPrefix}${id}`;
 
-        await redis.set(idempotencyKey, id, 'EX', 3600);
-        await redis.set(reverseIndex, idempotencyKey, 'EX', 3600);
+        await redis.set(idempotencyKey, id, {
+            expiration: {
+                type: 'EX',
+                value: 3600,
+            },
+        });
+
+        await redis.set(reverseIndex, idempotencyKey, {
+            expiration: {
+                type: 'EX',
+                value: 3600,
+            },
+        });
     }
 
     async deleteUsuarioIdempotencyKey(id: number) {
@@ -89,8 +97,12 @@ export class UsuarioRepository {
         await redis.set(
             `${cacheUsuariosPrefix}${id}`,
             JSON.stringify(usuario),
-            'EX',
-            60
+            {
+                expiration: {
+                    type: 'EX',
+                    value: 3600,
+                },
+            }
         );
     }
 
@@ -106,8 +118,12 @@ export class UsuarioRepository {
         return await redis.set(
             `${cacheUsuariosPrefix}page:${page}:limit:${limit}`,
             JSON.stringify(usuarios),
-            'EX',
-            60
+            {
+                expiration: {
+                    type: 'EX',
+                    value: 3600,
+                },
+            }
         );
     }
 

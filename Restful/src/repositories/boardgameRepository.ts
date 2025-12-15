@@ -1,9 +1,6 @@
-import { PrismaClient, Boardgame } from '@prisma/client';
-import Redis from 'ioredis-mock';
+import { Boardgame } from '@prisma/client';
 import { BoardgameDto, BoardgamesDto } from '../models/boardgameDto';
-
-export const prisma = new PrismaClient();
-export const redis = new Redis();
+import { prisma, redis } from '../index.js';
 
 const idempotencyKeyPrefix: string = 'idempotency:';
 const idempotencyBoardgameIdPrefix: string = 'idempotency:boardgame:';
@@ -86,8 +83,18 @@ export class BoardgameRepository {
         const idempotencyKey = `${idempotencyKeyPrefix}${key}`;
         const reverseIndex = `${idempotencyBoardgameIdPrefix}${id}`;
 
-        await redis.set(idempotencyKey, id, 'EX', 3600);
-        await redis.set(reverseIndex, idempotencyKey, 'EX', 3600);
+        await redis.set(idempotencyKey, id, {
+            expiration: {
+                type: 'EX',
+                value: 3600,
+            },
+        });
+        await redis.set(reverseIndex, idempotencyKey, {
+            expiration: {
+                type: 'EX',
+                value: 3600,
+            },
+        });
     }
 
     async deleteBoardgameIdempotencyKey(id: number) {
@@ -109,7 +116,12 @@ export class BoardgameRepository {
     }
 
     async insertBoardgameByIdRedisEtag(id: number, etag: string) {
-        await redis.set(`${cacheBoardgamesPrefix}${id}:etag`, etag, 'EX', 60);
+        await redis.set(`${cacheBoardgamesPrefix}${id}:etag`, etag, {
+            expiration: {
+                type: 'EX',
+                value: 3600,
+            },
+        });
     }
 
     async insertBoardgamesRedis(
@@ -120,8 +132,12 @@ export class BoardgameRepository {
         return await redis.set(
             `${cacheBoardgamesPrefix}page:${createdAt?.toISOString()}:limit:${limit}`,
             JSON.stringify(boardgames),
-            'EX',
-            60
+            {
+                expiration: {
+                    type: 'EX',
+                    value: 3600,
+                },
+            }
         );
     }
 

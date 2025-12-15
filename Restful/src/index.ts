@@ -1,9 +1,16 @@
 import Fastify from 'fastify';
 import { setUsariosRoutes } from './routes/usuarioRoutes.js';
 import { UsuarioController } from './controllers/usuarioController.js';
-import { prisma, redis } from './repositories/usuarioRepository.js';
 import { BoardgameController } from './controllers/boardgameController.js';
 import { setBoardgameRoutes } from './routes/boardgameRoutes.js';
+import { createClient } from 'redis';
+import { PrismaClient } from '@prisma/client';
+
+export const redis = await createClient()
+    .on('error', (err) => console.log('Redis connection error', err))
+    .connect();
+
+export const prisma = new PrismaClient();
 
 export const buildServer = (logger = false) => {
     let app = Fastify({ logger });
@@ -14,16 +21,21 @@ export const buildServer = (logger = false) => {
     return app;
 };
 
+const closeServer = async () => {
+    console.log('the server is shutting down.');
+    await app.close();
+    await redis.quit();
+    await redis.destroy();
+
+    await prisma.$disconnect();
+};
+
 const app = buildServer(true);
 
-app.addHook('onClose', async (_) => {
-    console.log('the server is shutting down.');
-    await redis.quit();
-    await prisma.$disconnect();
-});
+app.addHook('onClose', async (_) => await closeServer());
 
 process.on('SIGTERM', async () => {
-    await app.close();
+    await closeServer();
     process.exit(0);
 });
 
@@ -35,7 +47,8 @@ if (!process.env.VITEST) {
         console.log(`Server running at ${address}`);
     } catch (err) {
         app.log.error(err);
-        await app.close();
+        closeServer();
+
         process.exit(1);
     }
 }
