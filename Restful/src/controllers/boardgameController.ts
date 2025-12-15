@@ -106,28 +106,14 @@ export class BoardgameController extends BaseController {
             const idempotencykey = request.headers.idempotencykey as string;
             const { usuarioId } = request.params as { usuarioId: number };
 
-            const results = [];
+            const results = await this.boardgameService.createBoardgamesBatch(
+                boardgames,
+                usuarioId,
+                idempotencykey
+            );
 
-            for (const boardgame of boardgames) {
-                const result = await this.boardgameService.createBoardgame(
-                    boardgame,
-                    usuarioId,
-                    idempotencykey
-                );
-
-                results.push({
-                    input: boardgame,
-                    result,
-                });
-            }
-
-            const hasCreated = results.some((r) => r.result?.created);
-            const hasExisting = results.some((r) => !r.result?.created);
-
-            return reply.code(hasCreated ? 201 : 200).send({
+            return reply.code(200).send({
                 total: boardgames.length,
-                created: results.filter((r) => r.result?.created).length,
-                existing: results.filter((r) => !r.result?.created).length,
                 items: results,
             });
         } catch (error) {
