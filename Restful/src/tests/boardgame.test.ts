@@ -3,7 +3,6 @@ import { app } from '../../vitest.setup.js';
 import { BoardgameDto, BoardgamesDto } from '../models/boardgameDto.js';
 import { DuplicateBoardgameError } from '../errors/duplicateBoardgameError.js';
 import { BoardgameNotFoundError } from '../errors/boardgameNotFoundError.js';
-import { Readable } from 'node:stream';
 
 describe('GET /boardgames', () => {
     it.each([

@@ -1,19 +1,8 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { UsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
-import { buildServer } from '../index.js';
 import { UserNotFoundError } from '../errors/userNotFoundError.js';
 import { DuplicateUserError } from '../errors/duplicateUserError.js';
-
-let app: ReturnType<typeof buildServer>;
-
-beforeAll(async () => {
-    app = buildServer();
-    await app.ready();
-});
-
-afterAll(async () => {
-    await app.close();
-});
+import { app } from '../../vitest.setup.js';
 
 describe('GET /usuarios', () => {
     it.each([
