@@ -5,12 +5,15 @@ import { BoardgameController } from './controllers/boardgameController.js';
 import { setBoardgameRoutes } from './routes/boardgameRoutes.js';
 import { createClient } from 'redis';
 import { PrismaClient } from '@prisma/client';
+import { Queue } from 'bullmq';
 
 export const redis = await createClient()
     .on('error', (err) => console.log('Redis connection error', err))
     .connect();
 
 export const prisma = new PrismaClient();
+
+export const boardgameQueue = new Queue('boardgame-queue');
 
 export const buildServer = (logger = false) => {
     let app = Fastify({ logger });
