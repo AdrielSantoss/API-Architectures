@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { BaseController } from './baseController.js';
 import { BoardgameService } from '../services/boardgameService.js';
 import { BoardgameDto } from '../models/boardgameDto.js';
-import { boardgameQueue } from '../index.js';
+import { boardgameQueue } from '../queues/boardgameQueue.js';
 
 export class BoardgameController extends BaseController {
     private boardgameService: BoardgameService;
@@ -104,11 +104,11 @@ export class BoardgameController extends BaseController {
     ): Promise<undefined> {
         try {
             const boardgames = request.body as BoardgameDto[];
-            const idempotencykey = request.headers.idempotencykey as string;
+            const idempotencykey = request.headers.idempotencykey as string; // depois
             const { usuarioId } = request.params as { usuarioId: number };
 
             await boardgameQueue.add(
-                'create-boardgames',
+                'boardgame-queue',
                 {
                     boardgames,
                     usuarioId,
@@ -120,7 +120,7 @@ export class BoardgameController extends BaseController {
             );
 
             return reply.code(202).send({
-                message: 'Boardgams enfileirado para processamento',
+                message: 'Boardgames enfileirado para processamento',
             });
         } catch (error) {
             this.throwResponseException(error, reply);
