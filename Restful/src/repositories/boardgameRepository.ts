@@ -1,6 +1,7 @@
 import { Boardgame } from '@prisma/client';
 import { BoardgameDto, BoardgamesDto } from '../models/boardgameDto';
-import { prisma, redis } from '../index.js';
+import { prisma } from '../database/prismaClient';
+import { redis } from '../database/redisConnections';
 
 const idempotencyKeyPrefix: string = 'idempotency:';
 const idempotencyBoardgameIdPrefix: string = 'idempotency:boardgame:';

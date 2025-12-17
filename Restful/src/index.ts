@@ -3,17 +3,9 @@ import { setUsariosRoutes } from './routes/usuarioRoutes.js';
 import { UsuarioController } from './controllers/usuarioController.js';
 import { BoardgameController } from './controllers/boardgameController.js';
 import { setBoardgameRoutes } from './routes/boardgameRoutes.js';
-import { createClient } from 'redis';
-import { PrismaClient } from '@prisma/client';
-import { Queue } from 'bullmq';
 
-export const redis = await createClient()
-    .on('error', (err) => console.log('Redis connection error', err))
-    .connect();
-
-export const prisma = new PrismaClient();
-
-export const boardgameQueue = new Queue('boardgame-queue');
+import { redis } from './database/redisConnections.js';
+import { prisma } from './database/prismaClient.js';
 
 export const buildServer = (logger = false) => {
     let app = Fastify({ logger });
@@ -24,6 +16,8 @@ export const buildServer = (logger = false) => {
     return app;
 };
 
+const app = await buildServer(true);
+
 const closeServer = async () => {
     console.log('the server is shutting down.');
     await app.close();
@@ -32,8 +26,6 @@ const closeServer = async () => {
 
     await prisma.$disconnect();
 };
-
-const app = buildServer(true);
 
 app.addHook('onClose', async (_) => await closeServer());
 
