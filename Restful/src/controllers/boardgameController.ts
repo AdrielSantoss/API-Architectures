@@ -104,11 +104,10 @@ export class BoardgameController extends BaseController {
     ): Promise<undefined> {
         try {
             const boardgames = request.body as BoardgameDto[];
-            const idempotencykey = request.headers.idempotencykey as string; // depois
             const { usuarioId } = request.params as { usuarioId: number };
 
             await boardgameQueue.add(
-                'boardgame-queue',
+                'create-boardgames',
                 {
                     boardgames,
                     usuarioId,

@@ -115,7 +115,7 @@ export function setBoardgameRoutes(
             },
         },
         async (request, reply) =>
-            boardgameController.createBoardgame(request, reply)
+            boardgameController.createBoardgamesBatch(request, reply)
     );
 
     app.put(

@@ -2,6 +2,8 @@
 import { Worker, Job } from 'bullmq';
 import { BoardgameDto } from '../models/boardgameDto';
 import { bullRedisOptions } from '../database/redisConnections';
+import { Boardgame } from '@prisma/client';
+import { prisma } from '../database/prismaClient';
 
 interface CreateBoardgamesJob {
     boardgames: BoardgameDto[];
@@ -14,9 +16,23 @@ export const boardgameWorker = new Worker(
         if (job.name === 'create-boardgames') {
             const { boardgames, usuarioId } = job.data;
 
-            console.log('Processando job:', job.id);
-            console.log('Usuário:', usuarioId);
-            console.log('Qtd boardgames:', boardgames.length);
+            let boardgamesModel: Boardgame[] = [];
+
+            for (const newBoardgame of boardgames) {
+                boardgamesModel.push(<Boardgame>{
+                    nome: newBoardgame.nome,
+                    descricao: newBoardgame.descricao,
+                    complexidade: newBoardgame.complexidade,
+                    ano: newBoardgame.ano ?? 0,
+                    idade: newBoardgame.idade,
+                    tempo: newBoardgame.tempo,
+                    usuarioId: usuarioId,
+                });
+            }
+
+            prisma.boardgame.createMany({
+                data: boardgamesModel,
+            });
         }
     },
     {

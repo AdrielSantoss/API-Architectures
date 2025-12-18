@@ -1,8 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { app } from '../../vitest.setup.js';
 import { BoardgameDto, BoardgamesDto } from '../models/boardgameDto.js';
 import { DuplicateBoardgameError } from '../errors/duplicateBoardgameError.js';
 import { BoardgameNotFoundError } from '../errors/boardgameNotFoundError.js';
+import { boardgameQueue } from '../queues/boardgameQueue.js';
 
 describe('GET /boardgames', () => {
     it.each([
@@ -144,6 +145,36 @@ describe('POST /boardgames/2', () => {
 
         expect(response.statusCode).toBe(conflictError.statusCode);
         expect(data.message).toBe(conflictError.message);
+    });
+
+    it('should return 202 and add boardgames in the boardgame-queue.', async () => {
+        const addSpy = vi.spyOn(boardgameQueue, 'add');
+
+        const newBoardgame2 = <BoardgameDto>{
+            nome: 'Slay the Spire 2',
+            descricao:
+                'Craft a unique deck, discover powerful relics, and Slay the Spire together!',
+            complexidade: 2,
+            tempo: 150,
+        };
+
+        const response = await app.inject({
+            method: 'POST',
+            url: `/boardgames/2/batch`,
+            body: [newBoardgame, newBoardgame2],
+            headers: {
+                idempotencykey: 'abcd-1234',
+            },
+        });
+
+        expect(response.statusCode).toBe(202);
+
+        expect(addSpy).toHaveBeenCalledOnce();
+        expect(addSpy).toHaveBeenCalledWith(
+            'create-boardgames',
+            expect.any(Object),
+            expect.any(Object)
+        );
     });
 });
 
