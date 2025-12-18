@@ -12,6 +12,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
     await redis.FLUSHDB();
+
     await redis.quit();
     await app.close();
 });

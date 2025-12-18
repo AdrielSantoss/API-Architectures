@@ -6,7 +6,7 @@
     "type": "module",
     "scripts": {
         "dev": "npx tsx watch src/index.ts",
-        "test": "dotenv -e .env -- cross-env DATABASE_URL=$DATABASE_URL_TEST npx prisma migrate reset --force && vitest",
+        "test": "dotenv -e .env -- cross-env DATABASE_URL=$DATABASE_URL_TEST && vitest",
         "migrate": "npx prisma migrate dev",
         "migrate-reset": "npx prisma migrate reset --force"
     },
