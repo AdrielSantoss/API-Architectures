@@ -1,4 +1,3 @@
-// src/infra/workers/boardgame.worker.ts
 import { Worker, Job } from 'bullmq';
 import { BoardgameDto } from '../models/boardgameDto';
 import { bullRedisOptions } from '../database/redisConnections';

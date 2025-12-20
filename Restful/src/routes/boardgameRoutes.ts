@@ -79,7 +79,7 @@ export function setBoardgameRoutes(
     );
 
     app.post(
-        '/boardgames/:usuarioId/batch',
+        '/boardgames',
         {
             schema: {
                 params: {
@@ -110,6 +110,39 @@ export function setBoardgameRoutes(
                     required: ['idempotencykey'],
                     properties: {
                         idempotencykey: { type: 'string' },
+                    },
+                },
+            },
+        },
+        async (request, reply) =>
+            boardgameController.createBoardgame(request, reply)
+    );
+
+    app.post(
+        '/boardgames/:usuarioId/batch',
+        {
+            schema: {
+                params: {
+                    type: 'object',
+                    required: ['usuarioId'],
+                    properties: {
+                        usuarioId: { type: 'number', minimum: 0 },
+                    },
+                },
+                body: {
+                    type: 'array',
+                    minItems: 1,
+                    items: {
+                        type: 'object',
+                        required: ['nome', 'descricao', 'complexidade'],
+                        properties: {
+                            nome: { type: 'string' },
+                            descricao: { type: 'string' },
+                            complexidade: { type: 'number' },
+                            idade: { type: 'number' },
+                            tempo: { type: 'number' },
+                            ano: { type: 'number' },
+                        },
                     },
                 },
             },
