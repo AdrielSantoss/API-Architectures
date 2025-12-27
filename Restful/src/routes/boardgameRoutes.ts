@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { BoardgameController } from '../controllers/boardgameController';
+import jwtValidator from '../middlewares/JWTValidator';
 
 export function setBoardgameRoutes(
     app: FastifyInstance,

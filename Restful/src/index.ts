@@ -6,10 +6,21 @@ import { setBoardgameRoutes } from './routes/boardgameRoutes.js';
 
 import { redis } from './database/redisConnections.js';
 import { prisma } from './database/prismaClient.js';
+import { setAuthRoute } from './routes/authRoute.js';
+import { AuthController } from './controllers/authController.js';
+import jwt from '@fastify/jwt';
 
 export const buildServer = (logger = false) => {
     let app = Fastify({ logger });
 
+    app.register(jwt, {
+        secret: process.env.JWT_SECRET!,
+        sign: {
+            expiresIn: '15m',
+        },
+    });
+
+    setAuthRoute(app, new AuthController());
     setUsariosRoutes(app, new UsuarioController());
     setBoardgameRoutes(app, new BoardgameController());
 
