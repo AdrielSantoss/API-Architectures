@@ -3,3 +3,6 @@ node_modules
 .env
 
 /generated/prisma
+
+/src/database/prisma/restful.db
+/src/database/prisma/test.db
