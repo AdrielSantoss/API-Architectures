@@ -89,7 +89,7 @@ export class BoardgameService {
 
     async getBoardgameRulebook(): Promise<ReadStream | undefined> {
         return fs.createReadStream(
-            path.join(__dirname, '..', 'assets', 'rulebook-example.pdf')
+            path.join('src', 'api', 'assets', 'rulebook-example.pdf')
         );
     }
 

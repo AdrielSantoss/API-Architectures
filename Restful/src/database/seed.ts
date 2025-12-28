@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import path from 'path';
 
 export default async function seedDatabase(prisma: PrismaClient) {
-    const filePath = path.join('prisma', 'seed.json');
+    const filePath = path.join('src', 'database', 'prisma', 'seed.json');
     const fileContent = readFileSync(filePath, 'utf-8');
     const { usuarios, boardgames } = JSON.parse(fileContent);
 

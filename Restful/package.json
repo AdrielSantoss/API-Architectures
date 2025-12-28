@@ -7,11 +7,11 @@
     "scripts": {
         "dev": "npx tsx watch src/index.ts",
         "test": "dotenv -e .env -- cross-env DATABASE_URL=$DATABASE_URL_TEST && vitest run",
-        "migrate": "npx prisma migrate dev",
-        "migrate-reset": "npx prisma migrate reset --force"
+        "migrate": "npx prisma migrate dev --schema=src/database/prisma/schema.prisma",
+        "migrate-reset": "npx prisma migrate reset --force --schema=src/database/prisma/schema.prisma"
     },
     "prisma": {
-        "seed": "ts-node prisma/seed.ts"
+        "seed": "tsx src/database/prisma/prisma-seed.ts"
     },
     "keywords": [],
     "author": "",
