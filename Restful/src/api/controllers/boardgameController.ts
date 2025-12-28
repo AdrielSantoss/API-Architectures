@@ -1,8 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { BaseController } from './baseController.js';
-import { BoardgameService } from '../services/boardgameService.js';
+import { BoardgameService } from '../../core/services/boardgameService.js';
 import { BoardgameDto } from '../models/boardgameDto.js';
-import { boardgameQueue } from '../queues/boardgameQueue.js';
+import { boardgameQueue } from '../../core/queues/boardgameQueue.js';
 
 export class BoardgameController extends BaseController {
     private boardgameService: BoardgameService;

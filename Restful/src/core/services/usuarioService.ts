@@ -1,5 +1,5 @@
-import { UsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
-import { UsuarioRepository } from '../repositories/usuarioRepository.js';
+import { UsuarioDto, UsuariosDto } from '../../api/models/usuarioDto.js';
+import { UsuarioRepository } from '../../database/repositories/usuarioRepository.js';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js';
 import { InternalError } from '../errors/main/internalError.js';
 import { DuplicateUserError } from '../errors/duplicateUserError.js';

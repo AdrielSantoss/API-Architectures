@@ -1,13 +1,13 @@
 import Fastify from 'fastify';
-import { setUsariosRoutes } from './routes/usuarioRoutes.js';
-import { UsuarioController } from './controllers/usuarioController.js';
-import { BoardgameController } from './controllers/boardgameController.js';
-import { setBoardgameRoutes } from './routes/boardgameRoutes.js';
+import { setUsariosRoutes } from './api/routes/usuarioRoutes.js';
+import { UsuarioController } from './api/controllers/usuarioController.js';
+import { BoardgameController } from './api/controllers/boardgameController.js';
+import { setBoardgameRoutes } from './api/routes/boardgameRoutes.js';
 
 import { redis } from './database/redisConnections.js';
 import { prisma } from './database/prismaClient.js';
-import { setAuthRoute } from './routes/authRoute.js';
-import { AuthController } from './controllers/authController.js';
+import { setAuthRoute } from './api/routes/authRoute.js';
+import { AuthController } from './api/controllers/authController.js';
 import jwt from '@fastify/jwt';
 
 export const buildServer = (logger = false) => {

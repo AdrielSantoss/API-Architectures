@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { UsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
-import { UserNotFoundError } from '../errors/userNotFoundError.js';
-import { DuplicateUserError } from '../errors/duplicateUserError.js';
+import { UsuarioDto, UsuariosDto } from '../api/models/usuarioDto.js';
+import { UserNotFoundError } from '../core/errors/userNotFoundError.js';
+import { DuplicateUserError } from '../core/errors/duplicateUserError.js';
 import { InjectOptions } from 'fastify';
 import { redis } from '../database/redisConnections.js';
 import { buildServer } from '../index.js';

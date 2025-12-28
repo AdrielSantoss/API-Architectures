@@ -1,11 +1,11 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js';
 import { InternalError } from '../errors/main/internalError.js';
-import { BoardgameRepository } from '../repositories/boardgameRepository.js';
+import { BoardgameRepository } from '../../database/repositories/boardgameRepository.js';
 import {
     BoardgameCachedDto,
     BoardgameDto,
     BoardgamesDto,
-} from '../models/boardgameDto.js';
+} from '../../api/models/boardgameDto.js';
 import { BoardgameNotFoundError } from '../errors/boardgameNotFoundError.js';
 import { DuplicateBoardgameError } from '../errors/duplicateBoardgameError.js';
 import path from 'path';

@@ -1,13 +1,12 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
-import { BoardgameDto, BoardgamesDto } from '../models/boardgameDto.js';
-import { DuplicateBoardgameError } from '../errors/duplicateBoardgameError.js';
-import { BoardgameNotFoundError } from '../errors/boardgameNotFoundError.js';
-import { boardgameQueue } from '../queues/boardgameQueue.js';
+import { BoardgameDto, BoardgamesDto } from '../api/models/boardgameDto.js';
+import { DuplicateBoardgameError } from '../core/errors/duplicateBoardgameError.js';
+import { BoardgameNotFoundError } from '../core/errors/boardgameNotFoundError.js';
+import { boardgameQueue } from '../core/queues/boardgameQueue.js';
 import { buildServer } from '..';
 import { redis } from '../database/redisConnections.js';
 import { InjectOptions } from 'fastify';
-import jwtValidator from '../middlewares/JWTValidator';
 
 let app: ReturnType<typeof buildServer>;
 let access_token: string;

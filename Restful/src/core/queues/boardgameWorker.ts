@@ -1,8 +1,8 @@
 import { Worker, Job } from 'bullmq';
-import { BoardgameDto } from '../models/boardgameDto';
-import { bullRedisOptions } from '../database/redisConnections';
+import { BoardgameDto } from '../../api/models/boardgameDto';
+import { bullRedisOptions } from '../../database/redisConnections';
 import { Boardgame } from '@prisma/client';
-import { prisma } from '../database/prismaClient';
+import { prisma } from '../../database/prismaClient';
 
 interface CreateBoardgamesJob {
     boardgames: BoardgameDto[];
