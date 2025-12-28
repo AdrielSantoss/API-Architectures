@@ -1,9 +1,66 @@
-import { describe, expect, it, vi } from 'vitest';
-import { app } from '../../vitest.setup.js';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+
 import { BoardgameDto, BoardgamesDto } from '../models/boardgameDto.js';
 import { DuplicateBoardgameError } from '../errors/duplicateBoardgameError.js';
 import { BoardgameNotFoundError } from '../errors/boardgameNotFoundError.js';
 import { boardgameQueue } from '../queues/boardgameQueue.js';
+import { buildServer } from '..';
+import { redis } from '../database/redisConnections.js';
+import { InjectOptions } from 'fastify';
+import jwtValidator from '../middlewares/JWTValidator';
+
+let app: ReturnType<typeof buildServer>;
+let access_token: string;
+
+beforeAll(async () => {
+    app = buildServer();
+
+    await app.ready();
+});
+
+afterAll(async () => {
+    await redis.FLUSHDB();
+
+    await redis.quit();
+    await app.close();
+});
+
+describe('GET /auth/token', () => {
+    let requestInfos: InjectOptions = {
+        method: 'POST',
+        url: `/auth/token`,
+        headers: {
+            'x-api-key': 'ceb61bab-e096-4835-8629-fd1b93b37179',
+        },
+    };
+    it('should return 200', async () => {
+        const response = await app.inject(requestInfos);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toBeDefined();
+        expect(response.body).toBeDefined();
+
+        app.jwt.verify(response.body);
+
+        access_token = `Bearer ${response.body}`;
+    });
+
+    it('should return 400', async () => {
+        requestInfos.headers = undefined;
+
+        const response = await app.inject(requestInfos);
+
+        expect(response.statusCode).toBe(400);
+    });
+
+    it('should return 401', async () => {
+        requestInfos.headers = { 'x-api-key': 'abc123' };
+
+        const response = await app.inject(requestInfos);
+
+        expect(response.statusCode).toBe(401);
+    });
+});
 
 describe('GET /boardgames', () => {
     it.each([
@@ -17,6 +74,9 @@ describe('GET /boardgames', () => {
         const response = await app.inject({
             method: 'GET',
             url: `/boardgames?createdAt=${createdAt.toISOString()}&limit=${limit}`,
+            headers: {
+                Authorization: access_token,
+            },
         });
 
         const data = JSON.parse(response.body) as BoardgamesDto;
@@ -36,6 +96,9 @@ describe('GET /boardgame/:id', () => {
         const response = await app.inject({
             method: 'GET',
             url: `/boardgames/10`,
+            headers: {
+                Authorization: access_token,
+            },
         });
 
         const data = JSON.parse(response.body) as BoardgameDto;
@@ -54,6 +117,7 @@ describe('GET /boardgame/:id', () => {
             url: `/boardgames/10`,
             headers: {
                 'if-none-match': etag,
+                Authorization: access_token,
             },
         });
 
@@ -66,6 +130,9 @@ describe('GET /boardgames/rulebook/example', () => {
         const response = await app.inject({
             method: 'GET',
             url: `/boardgames/rulebook/example`,
+            headers: {
+                Authorization: access_token,
+            },
         });
 
         expect(response.statusCode).toBe(200);
@@ -97,6 +164,7 @@ describe('POST /boardgames/2', () => {
             body: newBoardgame,
             headers: {
                 idempotencykey: 'abcf-1236',
+                Authorization: access_token,
             },
         });
 
@@ -117,6 +185,7 @@ describe('POST /boardgames/2', () => {
             body: newBoardgame,
             headers: {
                 idempotencykey: 'abcf-1236',
+                Authorization: access_token,
             },
         });
 
@@ -137,6 +206,7 @@ describe('POST /boardgames/2', () => {
             body: newBoardgame,
             headers: {
                 idempotencykey: 'abcd-1234',
+                Authorization: access_token,
             },
         });
 
@@ -164,6 +234,7 @@ describe('POST /boardgames/2', () => {
             body: [newBoardgame, newBoardgame2],
             headers: {
                 idempotencykey: 'abcd-1234',
+                Authorization: access_token,
             },
         });
 
@@ -193,6 +264,9 @@ describe('PUT /boardgames/:id', () => {
             method: 'PUT',
             url: '/boardgames/1',
             body: newBoardgame,
+            headers: {
+                Authorization: access_token,
+            },
         });
 
         const data = JSON.parse(response.body) as BoardgameDto;
@@ -209,6 +283,9 @@ describe('PUT /boardgames/:id', () => {
             method: 'PUT',
             url: '/boardgames/999',
             body: newBoardgame,
+            headers: {
+                Authorization: access_token,
+            },
         });
 
         const data = JSON.parse(response.body);
@@ -224,6 +301,9 @@ describe('DELETE /boardgames/:id', () => {
         const response = await app.inject({
             method: 'DELETE',
             url: '/boardgames/3',
+            headers: {
+                Authorization: access_token,
+            },
         });
 
         expect(response.statusCode).toBe(204);
@@ -233,6 +313,9 @@ describe('DELETE /boardgames/:id', () => {
         const response = await app.inject({
             method: 'DELETE',
             url: '/boardgames/999',
+            headers: {
+                Authorization: access_token,
+            },
         });
 
         const data = JSON.parse(response.body);

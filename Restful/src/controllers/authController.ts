@@ -18,9 +18,7 @@ export class AuthController extends BaseController {
                     roles: ['user'],
                 });
 
-                console.log(token);
-
-                return reply.code(200).send({ access_token: token });
+                return reply.code(200).send(token);
             } else {
                 return reply.code(401).send();
             }

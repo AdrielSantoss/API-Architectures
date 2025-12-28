@@ -1,8 +1,63 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { UsuarioDto, UsuariosDto } from '../models/usuarioDto.js';
 import { UserNotFoundError } from '../errors/userNotFoundError.js';
 import { DuplicateUserError } from '../errors/duplicateUserError.js';
-import { app } from '../../vitest.setup.js';
+import { InjectOptions } from 'fastify';
+import { redis } from '../database/redisConnections.js';
+import { buildServer } from '../index.js';
+
+let app: ReturnType<typeof buildServer>;
+let access_token: string | null = null;
+
+beforeAll(async () => {
+    app = buildServer();
+
+    await app.ready();
+});
+
+afterAll(async () => {
+    await redis.FLUSHDB();
+
+    await redis.quit();
+    await app.close();
+});
+
+describe('GET /auth/token', () => {
+    let requestInfos: InjectOptions = {
+        method: 'POST',
+        url: `/auth/token`,
+        headers: {
+            'x-api-key': 'ceb61bab-e096-4835-8629-fd1b93b37179',
+        },
+    };
+
+    it('should return 200', async () => {
+        const response = await app.inject(requestInfos);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toBeDefined();
+
+        app.jwt.verify(response.body);
+
+        access_token = `Bearer ${response.body}`;
+    });
+
+    it('should return 400', async () => {
+        requestInfos.headers = undefined;
+
+        const response = await app.inject(requestInfos);
+
+        expect(response.statusCode).toBe(400);
+    });
+
+    it('should return 401', async () => {
+        requestInfos.headers = { 'x-api-key': 'abc123' };
+
+        const response = await app.inject(requestInfos);
+
+        expect(response.statusCode).toBe(401);
+    });
+});
 
 describe('GET /usuarios', () => {
     it.each([

@@ -18,7 +18,9 @@ export function setBoardgameRoutes(
                     },
                 },
             },
+            preHandler: [jwtValidator],
         },
+
         async (request, reply) =>
             boardgameController.getBoardgames(request, reply)
     );
@@ -34,13 +36,17 @@ export function setBoardgameRoutes(
                     },
                 },
             },
+            preHandler: [jwtValidator],
         },
         async (request, reply) =>
             boardgameController.getBoardgameById(request, reply)
     );
 
-    app.get('/boardgames/rulebook/example', {}, async (request, reply) =>
-        boardgameController.getBoardgameRulebook(request, reply)
+    app.get(
+        '/boardgames/rulebook/example',
+        { preHandler: [jwtValidator] },
+        async (request, reply) =>
+            boardgameController.getBoardgameRulebook(request, reply)
     );
 
     app.post(
@@ -74,6 +80,7 @@ export function setBoardgameRoutes(
                     },
                 },
             },
+            preHandler: [jwtValidator],
         },
         async (request, reply) =>
             boardgameController.createBoardgame(request, reply)
@@ -114,6 +121,7 @@ export function setBoardgameRoutes(
                     },
                 },
             },
+            preHandler: [jwtValidator],
         },
         async (request, reply) =>
             boardgameController.createBoardgame(request, reply)
@@ -147,6 +155,7 @@ export function setBoardgameRoutes(
                     },
                 },
             },
+            preHandler: [jwtValidator],
         },
         async (request, reply) =>
             boardgameController.createBoardgamesBatch(request, reply)
@@ -169,6 +178,7 @@ export function setBoardgameRoutes(
                     },
                 },
             },
+            preHandler: [jwtValidator],
         },
         async (request, reply) =>
             boardgameController.updateBoardgame(request, reply)
@@ -185,6 +195,7 @@ export function setBoardgameRoutes(
                     },
                 },
             },
+            preHandler: [jwtValidator],
         },
         async (request, reply) =>
             boardgameController.deleteBoardgame(request, reply)
