@@ -17,6 +17,6 @@ describe('GET /', () => {
 
         const body = JSON.parse(response.body);
         expect(response.statusCode).toBe(200);
-        expect(body?.hello).toBe('world');
+        expect(body?.data?.add).toBe(4);
     });
 });

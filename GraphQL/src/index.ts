@@ -1,11 +1,30 @@
 // Import the framework and instantiate it
 import Fastify from 'fastify';
+import mercurius from 'mercurius';
 export const app = Fastify({
     logger: true,
 });
 
-app.get('/', async function handler(request, reply) {
-    return { hello: 'world' };
+const schema = `
+  type Query {
+    add(x: Int, y: Int): Int
+  }
+`;
+
+const resolvers = {
+    Query: {
+        add: async (_: any, { x, y }: { x: number; y: number }) => x + y,
+    },
+};
+
+app.register(mercurius, {
+    schema,
+    resolvers,
+});
+
+app.get('/', async function (req, reply) {
+    const query = '{ add(x: 2, y: 2) }';
+    return reply.graphql(query);
 });
 
 if (!process.env.VITEST) {
