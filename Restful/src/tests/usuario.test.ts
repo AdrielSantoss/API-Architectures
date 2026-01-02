@@ -4,13 +4,19 @@ import { UserNotFoundError } from '../core/errors/userNotFoundError.js';
 import { DuplicateUserError } from '../core/errors/duplicateUserError.js';
 import { InjectOptions } from 'fastify';
 import { redis } from '../database/redisConnections.js';
-import { buildServer } from '../index.js';
+import { authorizationServer, buildServer } from '../index.js';
 
 let app: ReturnType<typeof buildServer>;
 let access_token: string | null = null;
 
 beforeAll(async () => {
     app = buildServer();
+
+    authorizationServer.listen(3002, () => {
+        console.log(
+            'oidc-provider listening on port 3002, check http://localhost:3002/oidc/.well-known/openid-configuration'
+        );
+    });
 
     await app.ready();
 });
@@ -56,6 +62,16 @@ describe('GET /auth/token', () => {
         const response = await app.inject(requestInfos);
 
         expect(response.statusCode).toBe(401);
+    });
+
+    // Todo: revisar
+    it('whatever', async () => {
+        const response = await app.inject({
+            method: 'GET',
+            url: `/oidc/.well-known/openid-configuration`,
+        });
+
+        console.log(response.body);
     });
 });
 
