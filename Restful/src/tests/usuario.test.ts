@@ -13,9 +13,7 @@ beforeAll(async () => {
     app = buildServer();
 
     authorizationServer.listen(3002, () => {
-        console.log(
-            'oidc-provider listening on port 3002, check http://localhost:3002/oidc/.well-known/openid-configuration'
-        );
+        console.log('oidc-provider listening on port 3002.');
     });
 
     await app.ready();
@@ -26,6 +24,17 @@ afterAll(async () => {
 
     await redis.quit();
     await app.close();
+});
+
+describe('GET /OIDC', () => {
+    it('should return 200', async () => {
+        const response = await app.inject({
+            method: 'GET',
+            url: `/oidc/.well-known/openid-configuration`,
+        });
+
+        expect(response.statusCode).toBe(200);
+    });
 });
 
 describe('GET /auth/token', () => {
@@ -62,16 +71,6 @@ describe('GET /auth/token', () => {
         const response = await app.inject(requestInfos);
 
         expect(response.statusCode).toBe(401);
-    });
-
-    // Todo: revisar
-    it('whatever', async () => {
-        const response = await app.inject({
-            method: 'GET',
-            url: `/oidc/.well-known/openid-configuration`,
-        });
-
-        console.log(response.body);
     });
 });
 
