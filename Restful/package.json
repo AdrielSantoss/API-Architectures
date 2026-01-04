@@ -17,7 +17,9 @@
     "author": "",
     "license": "ISC",
     "devDependencies": {
+        "@fastify/formbody": "^8.0.2",
         "@fastify/jwt": "^10.0.0",
+        "@fastify/middie": "^9.1.0",
         "@prisma/client": "^6.17.1",
         "@types/node": "^24.7.1",
         "@types/oidc-provider": "^9.5.0",

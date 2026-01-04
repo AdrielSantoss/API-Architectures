@@ -1,22 +1,90 @@
 {
     "usuarios": [
-        { "nome": "Alice", "email": "alice@prisma.io" },
-        { "nome": "bob", "email": "bob@prisma.io" },
-        { "nome": "Carlos", "email": "carlos@prisma.io" },
-        { "nome": "Daniel", "email": "daniel@prisma.io" },
-        { "nome": "Elena", "email": "elena@prisma.io" },
-        { "nome": "Fábio", "email": "fabio@prisma.io" },
-        { "nome": "Gabriela", "email": "gabriela@prisma.io" },
-        { "nome": "Henrique", "email": "henrique@prisma.io" },
-        { "nome": "Isabela", "email": "isabela@prisma.io" },
-        { "nome": "João", "email": "joao@prisma.io" },
-        { "nome": "Karina", "email": "karina@prisma.io" },
-        { "nome": "Lucas", "email": "lucas@prisma.io" },
-        { "nome": "Mariana", "email": "mariana@prisma.io" },
-        { "nome": "Nicolas", "email": "nicolas@prisma.io" },
-        { "nome": "Olivia", "email": "olivia@prisma.io" },
-        { "nome": "Paulo", "email": "paulo@prisma.io" },
-        { "nome": "Quintino", "email": "quintino@prisma.io" }
+        {
+            "nome": "Alice",
+            "email": "alice@prisma.io",
+            "senha": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+        },
+        {
+            "nome": "bob",
+            "email": "bob@prisma.io",
+            "senha": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+        },
+        {
+            "nome": "Carlos",
+            "email": "carlos@prisma.io",
+            "senha": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+        },
+        {
+            "nome": "Daniel",
+            "email": "daniel@prisma.io",
+            "senha": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+        },
+        {
+            "nome": "Elena",
+            "email": "elena@prisma.io",
+            "senha": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+        },
+        {
+            "nome": "Fábio",
+            "email": "fabio@prisma.io",
+            "senha": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+        },
+        {
+            "nome": "Gabriela",
+            "email": "gabriela@prisma.io",
+            "senha": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+        },
+        {
+            "nome": "Henrique",
+            "email": "henrique@prisma.io",
+            "senha": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+        },
+        {
+            "nome": "Isabela",
+            "email": "isabela@prisma.io",
+            "senha": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+        },
+        {
+            "nome": "João",
+            "email": "joao@prisma.io",
+            "senha": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+        },
+        {
+            "nome": "Karina",
+            "email": "karina@prisma.io",
+            "senha": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+        },
+        {
+            "nome": "Lucas",
+            "email": "lucas@prisma.io",
+            "senha": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+        },
+        {
+            "nome": "Mariana",
+            "email": "mariana@prisma.io",
+            "senha": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+        },
+        {
+            "nome": "Nicolas",
+            "email": "nicolas@prisma.io",
+            "senha": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+        },
+        {
+            "nome": "Olivia",
+            "email": "olivia@prisma.io",
+            "senha": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+        },
+        {
+            "nome": "Paulo",
+            "email": "paulo@prisma.io",
+            "senha": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+        },
+        {
+            "nome": "Quintino",
+            "email": "quintino@prisma.io",
+            "senha": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5"
+        }
     ],
 
     "boardgames": [

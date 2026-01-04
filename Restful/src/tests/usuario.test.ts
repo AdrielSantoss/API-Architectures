@@ -6,11 +6,11 @@ import { InjectOptions } from 'fastify';
 import { redis } from '../database/redisConnections.js';
 import { authorizationServer, buildServer } from '../index.js';
 
-let app: ReturnType<typeof buildServer>;
+let app: any;
 let access_token: string | null = null;
 
 beforeAll(async () => {
-    app = buildServer();
+    app = await buildServer();
 
     authorizationServer.listen(3002, () => {
         console.log('oidc-provider listening on port 3002.');
@@ -119,6 +119,7 @@ describe('POST /usuarios', () => {
     const newUsario = <UsuarioDto>{
         email: `newuser${Date.now()}@gmail.com`,
         nome: 'foobar',
+        senha: '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5',
     };
 
     it('should return 201 and create new user.', async () => {

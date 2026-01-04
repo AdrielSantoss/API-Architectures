@@ -28,6 +28,7 @@ export class UsuarioRepository {
             data: {
                 nome: newUsuario.nome,
                 email: newUsuario.email,
+                senha: newUsuario.senha,
             },
         });
     }

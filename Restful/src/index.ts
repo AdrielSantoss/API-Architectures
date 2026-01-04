@@ -10,38 +10,100 @@ import { setAuthRoute } from './api/routes/authRoute.js';
 import { AuthController } from './api/controllers/authController.js';
 import jwt from '@fastify/jwt';
 import * as oidc from 'oidc-provider';
+import { config } from 'process';
+import formbody from '@fastify/formbody';
+import middie from '@fastify/middie';
 
-export const authorizationServer = new oidc.Provider(
-    'http://localhost:3002/oidc',
-    {
-        clients: [
-            {
-                client_id: 'foo',
-                client_secret: 'bar',
-                redirect_uris: ['http://localhost:8080/cb'],
+export const authorizationServer = new oidc.Provider('http://localhost:3000', {
+    clients: [
+        {
+            client_id: 'foo',
+            client_secret: 'bar',
+            redirect_uris: ['http://localhost:3000/home'],
+            response_types: ['code'],
+            grant_types: ['authorization_code'],
+            token_endpoint_auth_method: 'none',
+        },
+    ],
+    pkce: {
+        required: () => false,
+    },
+    findAccount: async (ctx, id) => {
+        return {
+            accountId: id,
+            async claims() {
+                return {
+                    sub: id,
+                    email: id,
+                };
             },
-        ],
-    }
-);
+        };
+    },
 
-export const buildServer = (logger = false) => {
+    interactions: {
+        url(ctx, interaction) {
+            return `/interaction/${interaction.uid}`;
+        },
+    },
+    features: {
+        devInteractions: { enabled: false },
+    },
+});
+
+export const buildServer = async (logger = false) => {
     let app = Fastify({ logger });
 
-    app.register(jwt, {
+    await app.register(jwt, {
         secret: process.env.JWT_SECRET!,
         sign: {
             expiresIn: '15m',
         },
     });
 
-    app.all('/oidc/*', async (req, reply) => {
-        const originalUrl = req.raw.url!;
-        req.raw.url = originalUrl.replace(/^\/oidc/, '');
+    await app.register(formbody);
 
-        await authorizationServer.callback()(req.raw, reply.raw);
-        req.raw.url = originalUrl;
+    await app.register(middie).after(() => {
+        app.use('/oidc', authorizationServer.callback());
+    });
 
-        reply.sent = true;
+    app.get('/interaction/:uid', async (req, reply) => {
+        const { uid } = req.params as { uid: number };
+        reply.type('text/html').send(`
+            <form method="post" action="/interaction/${uid}/login">
+            <input name="email" />
+            <input name="password" type="password" />
+            <button>Login</button>
+            </form>
+        `);
+    });
+
+    app.post('/interaction/:uid/login', async (req, reply) => {
+        const { uid } = req.params as { uid: number };
+
+        // validar usuário
+        const email = 'alice@prisma.io';
+
+        await authorizationServer.interactionFinished(
+            req.raw,
+            reply.raw,
+            {
+                login: { accountId: uid.toString() },
+            },
+            { mergeWithLastSubmission: true }
+        );
+    });
+
+    app.get('/home', async (req, reply) => {
+        const { code, state } = req.query as {
+            code?: string;
+            state?: string;
+        };
+
+        reply.send({
+            message: 'Authorization Code recebido',
+            code,
+            state,
+        });
     });
 
     setAuthRoute(app, new AuthController());

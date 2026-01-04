@@ -8,11 +8,11 @@ import { buildServer } from '..';
 import { redis } from '../database/redisConnections.js';
 import { InjectOptions } from 'fastify';
 
-let app: ReturnType<typeof buildServer>;
+let app: any;
 let access_token: string;
 
 beforeAll(async () => {
-    app = buildServer();
+    app = await buildServer();
 
     await app.ready();
 });

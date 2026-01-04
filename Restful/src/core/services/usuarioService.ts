@@ -78,6 +78,7 @@ export class UsuarioService {
         } as UsuarioDto;
     }
 
+    //TODO: criptografar senha
     async createUsuario(
         newUsuario: UsuarioDto,
         idempotencyKey: string
