@@ -34,14 +34,16 @@ export class UsuarioController extends BaseController {
         }
     }
 
-    async getUsuarioById(
+    async getUsuarioByEmail(
         request: FastifyRequest,
         reply: FastifyReply
     ): Promise<Usuario | undefined> {
         try {
-            const { id } = request.params as { id: number };
+            const { email } = request.params as { email: string };
 
-            return reply.send(await this.usuarioService.getUsuarioById(id));
+            return reply.send(
+                await this.usuarioService.getUsuarioByEmail(email)
+            );
         } catch (error) {
             this.throwResponseException(error, reply);
         }

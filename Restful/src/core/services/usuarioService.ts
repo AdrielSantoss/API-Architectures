@@ -56,22 +56,21 @@ export class UsuarioService {
         }
     }
 
-    async getUsuarioById(id: number): Promise<UsuarioDto | undefined> {
-        const usuarioCached = await this.usuarioRepository.getUsuarioByIdRedis(
-            id
-        );
+    async getUsuarioByEmail(email: string): Promise<UsuarioDto | undefined> {
+        const usuarioCached =
+            await this.usuarioRepository.getUsuarioByEmailRedis(email);
 
         if (usuarioCached) {
             return JSON.parse(usuarioCached) as UsuarioDto;
         }
 
-        const usuario = await this.usuarioRepository.getUsuarioById(id);
+        const usuario = await this.usuarioRepository.getUsuarioByEmail(email);
 
         if (!usuario) {
             throw new UserNotFoundError();
         }
 
-        await this.usuarioRepository.insertUsuarioByIdRedis(id, usuario);
+        await this.usuarioRepository.insertUsuarioByEmailRedis(email, usuario);
 
         return {
             nome: usuario?.nome,
@@ -84,18 +83,17 @@ export class UsuarioService {
         idempotencyKey: string
     ): Promise<UsuarioDto> {
         try {
-            let id: string | null = null;
+            let email: string | null = null;
 
             if (idempotencyKey) {
-                id = await this.usuarioRepository.getUsuarioIdempotencyKey(
+                email = await this.usuarioRepository.getUsuarioIdempotencyKey(
                     idempotencyKey
                 );
             }
 
-            if (id !== null) {
-                const getUsuario = await this.usuarioRepository.getUsuarioById(
-                    Number(id)
-                );
+            if (email !== null) {
+                const getUsuario =
+                    await this.usuarioRepository.getUsuarioByEmail(email);
 
                 return {
                     nome: getUsuario!.nome,
@@ -108,7 +106,7 @@ export class UsuarioService {
             );
 
             await this.usuarioRepository.createUsuarioIdempotencyKey(
-                usuario.id,
+                usuario.email,
                 idempotencyKey
             );
 

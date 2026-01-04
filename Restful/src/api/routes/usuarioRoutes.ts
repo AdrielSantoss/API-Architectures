@@ -27,18 +27,19 @@ export function setUsariosRoutes(
     );
 
     app.get(
-        '/usuarios/:id',
+        '/usuarios/:email',
         {
             schema: {
                 params: {
                     type: 'object',
                     properties: {
-                        id: { type: 'number', minimum: 0 },
+                        email: { type: 'string' },
                     },
                 },
             },
         },
-        async (request, reply) => userController.getUsuarioById(request, reply)
+        async (request, reply) =>
+            userController.getUsuarioByEmail(request, reply)
     );
 
     app.post(
@@ -47,10 +48,11 @@ export function setUsariosRoutes(
             schema: {
                 body: {
                     type: 'object',
-                    required: ['email'],
+                    required: ['email', 'senha'],
                     properties: {
                         nome: { type: 'string' },
                         email: { type: 'string' },
+                        senha: { type: 'string' },
                     },
                 },
             },

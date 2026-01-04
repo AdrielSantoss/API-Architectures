@@ -98,14 +98,14 @@ describe('GET /usuarios', () => {
     });
 });
 
-describe('GET /usuarios/:id', () => {
+describe('GET /usuarios/:email', () => {
     it.each([
         'should return 200 and "alice@prisma.io"',
         'should return 200 and cached user "alice@prisma.io"',
     ])('%s', async () => {
         const response = await app.inject({
             method: 'GET',
-            url: `/usuarios/1`,
+            url: `/usuarios/alice@prisma.io`,
         });
 
         const data = JSON.parse(response.body) as UsuarioDto;

@@ -15,10 +15,10 @@ export class UsuarioRepository {
         });
     }
 
-    async getUsuarioById(id: number): Promise<Usuario | null> {
+    async getUsuarioByEmail(email: string): Promise<Usuario | null> {
         return await prisma.usuario.findUnique({
             where: {
-                id: Number(id),
+                email: email,
             },
         });
     }
@@ -59,13 +59,13 @@ export class UsuarioRepository {
     }
 
     async createUsuarioIdempotencyKey(
-        id: number,
+        email: string,
         key: string
     ): Promise<undefined> {
         const idempotencyKey = `${idempotencyKeyPrefix}${key}`;
-        const reverseIndex = `${idempotencyUsuarioIdPrefix}${id}`;
+        const reverseIndex = `${idempotencyUsuarioIdPrefix}${email}`;
 
-        await redis.set(idempotencyKey, id, {
+        await redis.set(idempotencyKey, email, {
             expiration: {
                 type: 'EX',
                 value: 3600,
@@ -94,9 +94,9 @@ export class UsuarioRepository {
 
     // REDIS-CACHE
 
-    async insertUsuarioByIdRedis(id: number, usuario: UsuarioDto) {
+    async insertUsuarioByEmailRedis(email: string, usuario: UsuarioDto) {
         await redis.set(
-            `${cacheUsuariosPrefix}${id}`,
+            `${cacheUsuariosPrefix}${email}`,
             JSON.stringify(usuario),
             {
                 expiration: {
@@ -107,8 +107,8 @@ export class UsuarioRepository {
         );
     }
 
-    async getUsuarioByIdRedis(id: number): Promise<string | null> {
-        return await redis.get(`${cacheUsuariosPrefix}${id}`);
+    async getUsuarioByEmailRedis(email: string): Promise<string | null> {
+        return await redis.get(`${cacheUsuariosPrefix}${email}`);
     }
 
     async insertUsuariosRedis(
