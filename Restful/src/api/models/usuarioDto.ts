@@ -9,6 +9,6 @@ export interface UsuariosDto {
 export interface UsuarioDto {
     nome: string | null | undefined;
     email: string;
-    senha: string;
+    senha?: string;
     created?: boolean | undefined;
 }

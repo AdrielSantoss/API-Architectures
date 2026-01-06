@@ -15,8 +15,12 @@ export class UsuarioRepository {
         });
     }
 
-    async getUsuarioByEmail(email: string): Promise<Usuario | null> {
+    async getUsuarioByEmail(email: string): Promise<UsuarioDto | null> {
         return await prisma.usuario.findUnique({
+            select: {
+                nome: true,
+                email: true,
+            },
             where: {
                 email: email,
             },
@@ -28,7 +32,7 @@ export class UsuarioRepository {
             data: {
                 nome: newUsuario.nome,
                 email: newUsuario.email,
-                senha: newUsuario.senha,
+                senha: newUsuario.senha!,
             },
         });
     }

@@ -92,6 +92,7 @@ describe('GET /usuarios', () => {
 
         expect(response.statusCode).toBe(200);
         expect(data.data![0].nome).toBe('Alice');
+        expect(data.data![0].nome).toBe(undefined);
         expect(data.data!.length).toBe(limit);
         expect(data.meta.limit).toBe(limit);
         expect(data.meta.page).toBe(page);
@@ -113,6 +114,7 @@ describe('GET /usuarios/:email', () => {
 
         expect(response.statusCode).toBe(200);
         expect(data.email).toBe('alice@prisma.io');
+        expect(data.senha).toBe(undefined);
     });
 });
 
