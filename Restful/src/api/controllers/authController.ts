@@ -21,9 +21,12 @@ export class AuthController extends BaseController {
     ): Promise<undefined> {
         try {
             const apiKeyParam = request.headers['x-api-key'] as string;
-            const token = this.authService.getAccessToken(apiKeyParam, app.jwt);
+            const token = await this.authService.getAccessToken(
+                apiKeyParam,
+                app.jwt
+            );
 
-            reply.status(200).send(token);
+            return reply.send(token);
         } catch (error) {
             this.throwResponseException(error, reply);
         }

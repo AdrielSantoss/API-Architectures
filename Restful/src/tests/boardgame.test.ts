@@ -29,7 +29,7 @@ describe('GET /auth/token', () => {
         method: 'POST',
         url: `/auth/token`,
         headers: {
-            'x-api-key': 'ceb61bab-e096-4835-8629-fd1b93b37179',
+            'X-API-KEY': process.env.APIKEY_TEST,
         },
     };
     it('should return 200', async () => {
@@ -53,7 +53,7 @@ describe('GET /auth/token', () => {
     });
 
     it('should return 401', async () => {
-        requestInfos.headers = { 'x-api-key': 'abc123' };
+        requestInfos.headers = { 'X-API-KEY': 'abc123' };
 
         const response = await app.inject(requestInfos);
 

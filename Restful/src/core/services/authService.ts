@@ -1,7 +1,7 @@
 import { JWT } from '@fastify/jwt';
-import { InvalidApiKeyError } from '../errors/invalidApiKeyerror';
 import Provider from 'oidc-provider';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { InvalidApiKeyError } from '../errors/invalidApiKeyError';
 
 export class AuthService {
     constructor() {}

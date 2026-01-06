@@ -15,7 +15,7 @@ export function setAuthRoutes(
                     type: 'object',
                     required: ['X-API-KEY'],
                     properties: {
-                        'x-api-key': {
+                        'X-API-KEY': {
                             type: 'string',
                         },
                     },
