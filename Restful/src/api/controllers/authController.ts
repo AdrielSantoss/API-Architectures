@@ -51,31 +51,31 @@ export class AuthController extends BaseController {
 
             if (prompt.name === 'login') {
                 return reply.type('text/html').send(`
-                <h1>Login</h1>
-                <form method="post" action="/interaction/${uid}/login">
-                    <input name="email" />
-                    <input type="password" name="password" />
-                    <button>Entrar</button>
-                </form>
+                    <h1>Login</h1>
+                    <form method="post" action="/interaction/${uid}/login">
+                        <input name="email" />
+                        <input type="password" name="password" />
+                        <button>Entrar</button>
+                    </form>
             `);
             }
 
             if (prompt.name === 'consent') {
                 return reply.type('text/html').send(`
-                <h1>Consentimento</h1>
-                <p>Este aplicativo quer acesso a:</p>
-                <ul>
-                    <li>Email</li>
-                    <li>Nome de usuário</li>
-                </ul>
+                    <h1>Consentimento</h1>
+                    <p>Este aplicativo quer acesso a:</p>
+                    <ul>
+                        <li>Email</li>
+                        <li>Nome de usuário</li>
+                    </ul>
 
-                <form method="post" action="/interaction/${uid}/consent/confirm">
-                    <button>Aceitar</button>
-                </form>
+                    <form method="post" action="/interaction/${uid}/consent/confirm">
+                        <button>Aceitar</button>
+                    </form>
 
-                <form method="post" action="/interaction/${uid}/consent/abort">
-                    <button>Cancelar</button>
-                </form>
+                    <form method="post" action="/interaction/${uid}/consent/abort">
+                        <button>Cancelar</button>
+                    </form>
             `);
             }
         } catch (error) {

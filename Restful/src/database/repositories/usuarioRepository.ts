@@ -8,8 +8,12 @@ const idempotencyUsuarioIdPrefix: string = 'idempotency:usuario:';
 const cacheUsuariosPrefix: string = 'usuarios:';
 
 export class UsuarioRepository {
-    async getUsuarios(page: number, limit: number) {
+    async getUsuarios(page: number, limit: number): Promise<UsuarioDto[]> {
         return await prisma.usuario.findMany({
+            select: {
+                nome: true,
+                email: true,
+            },
             skip: (page - 1) * limit,
             take: limit + 1,
         });

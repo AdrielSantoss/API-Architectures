@@ -4,6 +4,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js
 import { InternalError } from '../errors/main/internalError.js';
 import { DuplicateUserError } from '../errors/duplicateUserError.js';
 import { UserNotFoundError } from '../errors/userNotFoundError.js';
+import { hashPassword } from '../utils/bcrypt.js';
 
 export class UsuarioService {
     private usuarioRepository: UsuarioRepository;
@@ -78,7 +79,6 @@ export class UsuarioService {
         } as UsuarioDto;
     }
 
-    //TODO: criptografar senha
     async createUsuario(
         newUsuario: UsuarioDto,
         idempotencyKey: string
@@ -101,6 +101,8 @@ export class UsuarioService {
                     email: getUsuario!.email,
                 } as UsuarioDto;
             }
+
+            newUsuario.senha = await hashPassword(newUsuario.senha!);
 
             const usuario = await this.usuarioRepository.createUsuario(
                 newUsuario
