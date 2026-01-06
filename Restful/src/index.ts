@@ -68,6 +68,11 @@ export const buildServer = async (logger = false) => {
 
     app.get('/interaction/:uid', async (req, reply) => {
         const { uid } = req.params as { uid: number };
+        const details = await authorizationServer.interactionDetails(
+            req.raw,
+            reply.raw
+        );
+
         reply.type('text/html').send(`
             <form method="post" action="/interaction/${uid}/login">
             <input name="email" />
@@ -78,19 +83,42 @@ export const buildServer = async (logger = false) => {
     });
 
     app.post('/interaction/:uid/login', async (req, reply) => {
-        const { uid } = req.params as { uid: number };
+        const { uid } = req.params as { uid: string };
 
-        // validar usuário
-        const email = 'alice@prisma.io';
+        const accountId = 'alice@prisma.io';
+
+        const interaction = await authorizationServer.interactionDetails(
+            req.raw,
+            reply.raw
+        );
+
+        let { grantId } = interaction;
+
+        let grant: any;
+        if (grantId) {
+            grant = await authorizationServer.Grant.find(grantId);
+        } else {
+            grant = new authorizationServer.Grant({
+                accountId,
+                clientId: interaction.params.client_id as string,
+            });
+        }
+
+        grant.addOIDCScope('openid email');
+
+        grantId = await grant.save();
 
         await authorizationServer.interactionFinished(
             req.raw,
             reply.raw,
             {
-                login: { accountId: uid.toString() },
+                login: { accountId },
+                consent: { grantId },
             },
-            { mergeWithLastSubmission: true }
+            { mergeWithLastSubmission: false }
         );
+
+        reply.hijack();
     });
 
     app.get('/home', async (req, reply) => {
