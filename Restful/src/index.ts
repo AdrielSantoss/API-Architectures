@@ -67,68 +67,110 @@ export const buildServer = async (logger = false) => {
     });
 
     app.get('/interaction/:uid', async (req, reply) => {
-        const { uid } = req.params as { uid: number };
-        const details = await authorizationServer.interactionDetails(
-            req.raw,
-            reply.raw
-        );
-
-        reply.type('text/html').send(`
-            <form method="post" action="/interaction/${uid}/login">
-            <input name="email" />
-            <input name="password" type="password" />
-            <button>Login</button>
-            </form>
-        `);
-    });
-
-    app.post('/interaction/:uid/login', async (req, reply) => {
         const { uid } = req.params as { uid: string };
-
-        const accountId = 'alice@prisma.io';
 
         const interaction = await authorizationServer.interactionDetails(
             req.raw,
             reply.raw
         );
 
-        let { grantId } = interaction;
+        const { prompt } = interaction;
 
-        let grant: any;
-        if (grantId) {
-            grant = await authorizationServer.Grant.find(grantId);
-        } else {
-            grant = new authorizationServer.Grant({
-                accountId,
-                clientId: interaction.params.client_id as string,
-            });
+        if (prompt.name === 'login') {
+            return reply.type('text/html').send(`
+                <h1>Login</h1>
+                <form method="post" action="/interaction/${uid}/login">
+                    <input name="email" />
+                    <input type="password" name="password" />
+                    <button>Entrar</button>
+                </form>
+            `);
         }
 
-        grant.addOIDCScope('openid email');
+        if (prompt.name === 'consent') {
+            return reply.type('text/html').send(`
+                <h1>Consentimento</h1>
+                <p>Este aplicativo quer acesso a:</p>
+                <ul>
+                    <li>Email</li>
+                    <li>Nome de usuário</li>
+                </ul>
 
-        grantId = await grant.save();
+                <form method="post" action="/interaction/${uid}/confirm">
+                    <button>Aceitar</button>
+                </form>
+
+                <form method="post" action="/interaction/${uid}/abort">
+                    <button>Cancelar</button>
+                </form>
+            `);
+        }
+    });
+
+    app.post('/interaction/:uid/login', async (req, reply) => {
+        const { uid } = req.params as { uid: string };
+
+        const accountId = 'user-123';
 
         await authorizationServer.interactionFinished(
             req.raw,
             reply.raw,
             {
                 login: { accountId },
-                consent: { grantId },
             },
-            { mergeWithLastSubmission: false }
+            { mergeWithLastSubmission: true }
+        );
+    });
+
+    app.post('/interaction/:uid/confirm', async (req, reply) => {
+        const { uid } = req.params as { uid: string };
+
+        const interaction = await authorizationServer.interactionDetails(
+            req.raw,
+            reply.raw
         );
 
-        reply.hijack();
+        const { params, session, grantId } = interaction;
+
+        const grant: any = grantId
+            ? await authorizationServer.Grant.find(grantId)
+            : new authorizationServer.Grant({
+                  accountId: session!.accountId,
+                  clientId: params.client_id as string,
+              });
+
+        grant.addOIDCScope('openid email');
+
+        const savedGrantId = await grant.save();
+
+        await authorizationServer.interactionFinished(
+            req.raw,
+            reply.raw,
+            {
+                consent: {
+                    grantId: savedGrantId,
+                },
+            },
+            { mergeWithLastSubmission: true }
+        );
+    });
+
+    app.post('/interaction/:uid/abort', async (req, reply) => {
+        await authorizationServer.interactionFinished(req.raw, reply.raw, {
+            error: 'access_denied',
+            error_description: 'Usuário negou o consentimento',
+        });
     });
 
     app.get('/home', async (req, reply) => {
-        const { code, state } = req.query as {
+        const { code, state, error } = req.query as {
             code?: string;
             state?: string;
+            error?: string;
         };
 
         reply.send({
-            message: 'Authorization Code recebido',
+            message: error ? 'Acesso Negado' : 'Authorization Code recebido',
             code,
             state,
         });
