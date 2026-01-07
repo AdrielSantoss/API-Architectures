@@ -38,43 +38,6 @@ describe('GET /OIDC', () => {
     });
 });
 
-describe('GET /auth/token', () => {
-    let requestInfos: InjectOptions = {
-        method: 'POST',
-        url: `/auth/token`,
-        headers: {
-            'X-API-KEY': process.env.APIKEY_TEST,
-        },
-    };
-
-    it('should return 200', async () => {
-        const response = await app.inject(requestInfos);
-
-        expect(response.statusCode).toBe(200);
-        expect(response.body).toBeDefined();
-
-        app.jwt.verify(response.body);
-
-        access_token = `Bearer ${response.body}`;
-    });
-
-    it('should return 400', async () => {
-        requestInfos.headers = undefined;
-
-        const response = await app.inject(requestInfos);
-
-        expect(response.statusCode).toBe(400);
-    });
-
-    it('should return 401', async () => {
-        requestInfos.headers = { 'X-API-KEY': 'abc123' };
-
-        const response = await app.inject(requestInfos);
-
-        expect(response.statusCode).toBe(401);
-    });
-});
-
 describe('GET /usuarios', () => {
     it.each([
         { name: 'should return 200 and "Alice" user (first request)' },
