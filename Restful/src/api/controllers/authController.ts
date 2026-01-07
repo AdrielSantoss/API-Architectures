@@ -51,66 +51,27 @@ export class AuthController extends BaseController {
 
             const { prompt } = interaction;
 
+            const client = await authorizationServer.Client.find(
+                interaction.params.client_id as string
+            );
+
             if (prompt.name === 'login') {
-                return reply.type('text/html').send(`
-                    <h1>Login</h1>
-                    <form method="post" action="/interaction/${uid}/login">
-                        <input name="email" />
-                        <input type="password" name="password" />
-                        <button>Entrar</button>
-                    </form>
-            `);
+                return reply.viewAsync('login.ejs', {
+                    uid: interaction.uid,
+                    error: null,
+                });
             }
 
             if (prompt.name === 'consent') {
-                return reply.type('text/html').send(`
-                    <h1>Consentimento</h1>
-                    <p>Este aplicativo quer acesso a:</p>
-                    <ul>
-                        <li>Email</li>
-                        <li>Nome de usuário</li>
-                    </ul>
-
-                    <form method="post" action="/interaction/${uid}/consent/confirm">
-                        <button>Aceitar</button>
-                    </form>
-
-                    <form method="post" action="/interaction/${uid}/consent/abort">
-                        <button>Cancelar</button>
-                    </form>
-            `);
+                return reply.view('consent.ejs', {
+                    uid: uid,
+                    clientName: client?.clientName,
+                });
             }
         } catch (error) {
+            console.log(error);
             this.throwResponseException(error, reply);
         }
-    }
-
-    async renderLoginWithError(
-        authorizationServer: Provider,
-        request: FastifyRequest,
-        reply: FastifyReply,
-        message: string
-    ) {
-        const details = await authorizationServer.interactionDetails(
-            request.raw,
-            reply.raw
-        );
-
-        const { uid, prompt, params } = details;
-
-        return reply.type('text/html').send(`
-            <head>
-                <meta charset="UTF-8" />
-                <title>Login</title>
-            </head>
-            <h1>Login</h1>
-            <form method="post" action="/interaction/${uid}/login">
-                <input name="email" />
-                <input type="password" name="password" />
-                <button>Entrar</button>
-                <div>${message}</div>
-            </form>
-        `);
     }
 
     async login(
@@ -125,12 +86,17 @@ export class AuthController extends BaseController {
                 error instanceof UserNotFoundError ||
                 error instanceof InvalidUserCredentialsError
             ) {
-                return this.renderLoginWithError(
-                    authorizationServer,
-                    request,
-                    reply,
-                    error.message
+                const details = await authorizationServer.interactionDetails(
+                    request.raw,
+                    reply.raw
                 );
+
+                const { uid } = details;
+
+                return reply.viewAsync('login.ejs', {
+                    uid: uid,
+                    error: error.message,
+                });
             }
 
             this.throwResponseException(error, reply);
@@ -149,6 +115,7 @@ export class AuthController extends BaseController {
                 reply
             );
         } catch (error) {
+            console.log(error);
             this.throwResponseException(error, reply);
         }
     }

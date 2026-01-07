@@ -11,7 +11,12 @@ import { AuthController } from './api/controllers/authController.js';
 import jwt from '@fastify/jwt';
 import formbody from '@fastify/formbody';
 import middie from '@fastify/middie';
+import view from '@fastify/view';
+import fastifyStatic from '@fastify/static';
 import { authorizationServer } from './core/providers/oidcProvider.js';
+import path from 'path';
+import ejs from 'ejs';
+import { fileURLToPath } from 'node:url';
 
 export const buildServer = async (logger = false) => {
     let app = Fastify({ logger });
@@ -27,6 +32,20 @@ export const buildServer = async (logger = false) => {
 
     await app.register(middie).after(() => {
         app.use('/oidc', authorizationServer.callback());
+    });
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    await app.register(view, {
+        engine: {
+            ejs: ejs,
+        },
+        root: path.join(__dirname, 'api', 'views'),
+    });
+
+    app.register(fastifyStatic, {
+        root: path.join(__dirname, 'api', 'assets'),
+        prefix: '/assets/',
     });
 
     setAuthRoutes(app, new AuthController(), authorizationServer);
