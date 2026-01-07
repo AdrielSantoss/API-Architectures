@@ -2,6 +2,8 @@ import { JWT } from '@fastify/jwt';
 import Provider from 'oidc-provider';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { InvalidApiKeyError } from '../errors/invalidApiKeyError';
+import { UsuarioRepository } from '../../database/repositories/usuarioRepository';
+import { comparePassword } from '../utils/bcrypt';
 
 export class AuthService {
     constructor() {}

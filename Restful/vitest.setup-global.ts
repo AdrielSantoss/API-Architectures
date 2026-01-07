@@ -1,5 +1,5 @@
 import { execSync } from 'child_process';
-import { prisma } from './src/database/prismaClient';
+import { prisma } from './src/core/providers/prismaClientProvider';
 import seedDatabase from './src/database/seed';
 
 export default async function () {

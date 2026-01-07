@@ -1,4 +1,5 @@
 import * as oidc from 'oidc-provider';
+import { prisma } from './prismaClientProvider';
 
 export const authorizationServer = new oidc.Provider('http://localhost:3000', {
     clients: [
@@ -15,17 +16,25 @@ export const authorizationServer = new oidc.Provider('http://localhost:3000', {
         required: () => true,
     },
     findAccount: async (ctx, id) => {
+        // id === accountId (user.id)
+        const user = await prisma.usuario.findUnique({
+            where: { id: Number(id) },
+        });
+
+        if (!user) return undefined;
+
         return {
-            accountId: id,
-            async claims() {
+            accountId: user.id.toString(),
+
+            async claims(use, scope) {
                 return {
-                    sub: id,
-                    email: id,
+                    sub: user.id.toString(),
+                    email: user.email,
+                    name: user.nome,
                 };
             },
         };
     },
-
     interactions: {
         url(ctx, interaction) {
             return `/interaction/${interaction.uid}`;

@@ -1,7 +1,7 @@
 import { Usuario } from '@prisma/client';
 import { UsuarioDto, UsuariosDto } from '../../api/models/usuarioDto.js';
-import { prisma } from '../prismaClient.js';
-import { redis } from '../redisConnections.js';
+import { prisma } from '../../core/providers/prismaClientProvider.js';
+import { redis } from '../../core/providers/redisProvider.js';
 
 const idempotencyKeyPrefix: string = 'idempotency:';
 const idempotencyUsuarioIdPrefix: string = 'idempotency:usuario:';

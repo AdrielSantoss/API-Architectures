@@ -4,14 +4,14 @@ import { UsuarioController } from './api/controllers/usuarioController.js';
 import { BoardgameController } from './api/controllers/boardgameController.js';
 import { setBoardgameRoutes } from './api/routes/boardgameRoutes.js';
 
-import { redis } from './database/redisConnections.js';
-import { prisma } from './database/prismaClient.js';
+import { redis } from './core/providers/redisProvider.js';
+import { prisma } from './core/providers/prismaClientProvider.js';
 import { setAuthRoutes } from './api/routes/authRoutes.js';
 import { AuthController } from './api/controllers/authController.js';
 import jwt from '@fastify/jwt';
 import formbody from '@fastify/formbody';
 import middie from '@fastify/middie';
-import { authorizationServer } from './api/providers/oidcProvider.js';
+import { authorizationServer } from './core/providers/oidcProvider.js';
 
 export const buildServer = async (logger = false) => {
     let app = Fastify({ logger });

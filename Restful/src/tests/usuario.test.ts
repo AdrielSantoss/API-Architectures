@@ -3,9 +3,9 @@ import { UsuarioDto, UsuariosDto } from '../api/models/usuarioDto.js';
 import { UserNotFoundError } from '../core/errors/userNotFoundError.js';
 import { DuplicateUserError } from '../core/errors/duplicateUserError.js';
 import { InjectOptions } from 'fastify';
-import { redis } from '../database/redisConnections.js';
+import { redis } from '../core/providers/redisProvider.js';
 import { buildServer } from '../index.js';
-import { authorizationServer } from '../api/providers/oidcProvider.js';
+import { authorizationServer } from '../core/providers/oidcProvider.js';
 
 let app: any;
 let access_token: string | null = null;

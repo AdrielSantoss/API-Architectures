@@ -5,7 +5,7 @@ import { DuplicateBoardgameError } from '../core/errors/duplicateBoardgameError.
 import { BoardgameNotFoundError } from '../core/errors/boardgameNotFoundError.js';
 import { boardgameQueue } from '../core/queues/boardgameQueue.js';
 import { buildServer } from '..';
-import { redis } from '../database/redisConnections.js';
+import { redis } from '../core/providers/redisProvider.js';
 import { InjectOptions } from 'fastify';
 
 let app: any;
