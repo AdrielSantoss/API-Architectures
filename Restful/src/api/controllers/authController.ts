@@ -2,6 +2,8 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { BaseController } from './baseController';
 import Provider from 'oidc-provider';
 import { AuthService } from '../../core/services/authService';
+import { UserNotFoundError } from '../../core/errors/userNotFoundError';
+import { InvalidUserCredentialsError } from '../../core/errors/invalidUserCredentialsError';
 
 export class AuthController extends BaseController {
     private authService: AuthService;
@@ -83,6 +85,34 @@ export class AuthController extends BaseController {
         }
     }
 
+    async renderLoginWithError(
+        authorizationServer: Provider,
+        request: FastifyRequest,
+        reply: FastifyReply,
+        message: string
+    ) {
+        const details = await authorizationServer.interactionDetails(
+            request.raw,
+            reply.raw
+        );
+
+        const { uid, prompt, params } = details;
+
+        return reply.type('text/html').send(`
+            <head>
+                <meta charset="UTF-8" />
+                <title>Login</title>
+            </head>
+            <h1>Login</h1>
+            <form method="post" action="/interaction/${uid}/login">
+                <input name="email" />
+                <input type="password" name="password" />
+                <button>Entrar</button>
+                <div>${message}</div>
+            </form>
+        `);
+    }
+
     async login(
         authorizationServer: Provider,
         request: FastifyRequest,
@@ -91,6 +121,18 @@ export class AuthController extends BaseController {
         try {
             await this.authService.login(authorizationServer, request, reply);
         } catch (error) {
+            if (
+                error instanceof UserNotFoundError ||
+                error instanceof InvalidUserCredentialsError
+            ) {
+                return this.renderLoginWithError(
+                    authorizationServer,
+                    request,
+                    reply,
+                    error.message
+                );
+            }
+
             this.throwResponseException(error, reply);
         }
     }

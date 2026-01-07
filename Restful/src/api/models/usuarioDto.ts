@@ -7,8 +7,9 @@ export interface UsuariosDto {
 }
 
 export interface UsuarioDto {
+    id?: number | null | undefined;
     nome: string | null | undefined;
     email: string;
     senha?: string;
-    created?: boolean | undefined;
+    created?: boolean | null | undefined;
 }

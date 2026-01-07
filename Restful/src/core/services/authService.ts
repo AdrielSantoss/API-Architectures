@@ -4,9 +4,15 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { InvalidApiKeyError } from '../errors/invalidApiKeyError';
 import { UsuarioRepository } from '../../database/repositories/usuarioRepository';
 import { comparePassword } from '../utils/bcrypt';
+import { UserNotFoundError } from '../errors/userNotFoundError';
+import { InvalidUserCredentialsError } from '../errors/invalidUserCredentialsError';
 
 export class AuthService {
-    constructor() {}
+    private usuarioRepository: UsuarioRepository;
+
+    constructor() {
+        this.usuarioRepository = new UsuarioRepository();
+    }
 
     async getAccessToken(
         apiKeyParam: string,
@@ -31,13 +37,31 @@ export class AuthService {
         request: FastifyRequest,
         reply: FastifyReply
     ) {
-        const accountId = 'user-123'; // consultar user aqui
+        const { email, password } = request.body as {
+            email: string;
+            password: string;
+        };
+
+        const user = await this.usuarioRepository.getUsuarioByEmail(
+            email,
+            true
+        );
+
+        if (!user) {
+            throw new UserNotFoundError();
+        }
+
+        //const validPassword = comparePassword(password, user.senha!);
+
+        if (password !== user.senha!) {
+            throw new InvalidUserCredentialsError();
+        }
 
         await authorizationServer.interactionFinished(
             request.raw,
             reply.raw,
             {
-                login: { accountId },
+                login: { accountId: user.id!.toString() },
             },
             { mergeWithLastSubmission: true }
         );
