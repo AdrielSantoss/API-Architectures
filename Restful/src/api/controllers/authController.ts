@@ -69,7 +69,6 @@ export class AuthController extends BaseController {
                 });
             }
         } catch (error) {
-            console.log(error);
             this.throwResponseException(error, reply);
         }
     }
@@ -115,7 +114,6 @@ export class AuthController extends BaseController {
                 reply
             );
         } catch (error) {
-            console.log(error);
             this.throwResponseException(error, reply);
         }
     }

@@ -8,7 +8,7 @@ import { buildServer } from '..';
 import { redis } from '../core/providers/redisProvider.js';
 import { InjectOptions } from 'fastify';
 
-let app: any;
+let app: Awaited<ReturnType<typeof buildServer>>;
 let access_token: string;
 
 beforeAll(async () => {

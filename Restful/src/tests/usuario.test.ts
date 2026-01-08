@@ -2,20 +2,14 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { UsuarioDto, UsuariosDto } from '../api/models/usuarioDto.js';
 import { UserNotFoundError } from '../core/errors/userNotFoundError.js';
 import { DuplicateUserError } from '../core/errors/duplicateUserError.js';
-import { InjectOptions } from 'fastify';
 import { redis } from '../core/providers/redisProvider.js';
 import { buildServer } from '../index.js';
-import { authorizationServer } from '../core/providers/oidcProvider.js';
+import { InvalidUserCredentialsError } from '../core/errors/invalidUserCredentialsError.js';
 
-let app: any;
-let access_token: string | null = null;
+let app: Awaited<ReturnType<typeof buildServer>>;
 
 beforeAll(async () => {
     app = await buildServer();
-
-    authorizationServer.listen(3002, () => {
-        console.log('oidc-provider listening on port 3002.');
-    });
 
     await app.ready();
 });
@@ -27,7 +21,7 @@ afterAll(async () => {
     await app.close();
 });
 
-describe('GET /OIDC', () => {
+describe('OPENID CONNECT', () => {
     it('should return 200', async () => {
         const response = await app.inject({
             method: 'GET',
@@ -35,6 +29,109 @@ describe('GET /OIDC', () => {
         });
 
         expect(response.statusCode).toBe(200);
+    });
+
+    let interactionRoute: string;
+    let cookikesAuthSession: string[];
+
+    it('should redirect to interaction and load login page', async () => {
+        const response = await app.inject({
+            method: 'GET',
+            url: `/oidc/auth?response_type=code&client_id=app&redirect_uri=http://localhost:3000/home&scope=openid%20email&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256`,
+        });
+
+        expect(response.statusCode).toBe(303);
+
+        cookikesAuthSession = response.headers['set-cookie'] as string[];
+        expect(cookikesAuthSession).toBeDefined();
+
+        interactionRoute = response.headers.location!;
+
+        const responseLoginPage = await app.inject({
+            method: 'GET',
+            url: interactionRoute,
+            headers: {
+                cookie: cookikesAuthSession.join(';'),
+            },
+        });
+
+        expect(responseLoginPage.statusCode).toBe(200);
+        expect(responseLoginPage.headers['content-type']).toContain(
+            'text/html'
+        );
+    });
+
+    it('should return 401 and login failed: user not found', async () => {
+        const response = await app.inject({
+            method: 'POST',
+            url: interactionRoute + '/login',
+            headers: {
+                cookie: cookikesAuthSession.join(';'),
+                'content-type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                email: 'notfound@prisma.io.notfound',
+                password: 'abc123',
+            }).toString(),
+        });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.headers['content-type']).toContain('text/html');
+
+        expect(response.body).toContain(new UserNotFoundError().message);
+    });
+
+    it('should return 401 and login failed: invalid password', async () => {
+        const response = await app.inject({
+            method: 'POST',
+            url: interactionRoute + '/login',
+            headers: {
+                cookie: cookikesAuthSession.join(';'),
+                'content-type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                email: 'alice@prisma.io',
+                password: 'abc123',
+            }).toString(),
+        });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.headers['content-type']).toContain('text/html');
+
+        expect(response.body).toContain(
+            new InvalidUserCredentialsError().message
+        );
+    });
+
+    it('should return 200 and redirect consent page', async () => {
+        const response = await app.inject({
+            method: 'POST',
+            url: interactionRoute + '/login',
+            headers: {
+                cookie: cookikesAuthSession.join(';'),
+                'content-type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                email: 'alice@prisma.io',
+                password:
+                    '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5',
+            }).toString(),
+        });
+
+        expect(response.statusCode).toBe(303);
+    });
+
+    it('should redirect to redirect_uri with access_denied error', async () => {
+        const response = await app.inject({
+            method: 'POST',
+            url: interactionRoute + '/consent/abort',
+            headers: {
+                cookie: cookikesAuthSession.join(';'),
+            },
+        });
+
+        expect(response.statusCode).toBe(303);
+        expect(response.headers.location).toBeDefined();
     });
 });
 

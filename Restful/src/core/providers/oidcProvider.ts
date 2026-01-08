@@ -4,8 +4,8 @@ import { prisma } from './prismaClientProvider';
 export const authorizationServer = new oidc.Provider('http://localhost:3000', {
     clients: [
         {
-            client_id: 'foo',
-            client_secret: 'bar',
+            client_id: 'app',
+            client_secret: 'bar-123-app',
             client_name: 'Aplicação de Testes',
             redirect_uris: ['http://localhost:3000/home'],
             response_types: ['code'],
