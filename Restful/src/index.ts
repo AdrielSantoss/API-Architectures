@@ -8,46 +8,13 @@ import { redis } from './core/providers/redisProvider.js';
 import { prisma } from './core/providers/prismaClientProvider.js';
 import { setAuthRoutes } from './api/routes/authRoutes.js';
 import { AuthController } from './api/controllers/authController.js';
-import jwt from '@fastify/jwt';
-import formbody from '@fastify/formbody';
-import middie from '@fastify/middie';
-import view from '@fastify/view';
-import fastifyStatic from '@fastify/static';
 import { authorizationServer } from './core/providers/oidcProvider.js';
-import path from 'path';
-import ejs from 'ejs';
-import { fileURLToPath } from 'node:url';
+import { setFastifyPlugins } from './api/plugins/fastify.plugins.js';
 
 export const buildServer = async (logger = false) => {
     let app = Fastify({ logger });
 
-    await app.register(jwt, {
-        secret: process.env.JWT_SECRET!,
-        sign: {
-            expiresIn: '15m',
-        },
-    });
-
-    await app.register(formbody);
-
-    await app.register(middie).after(() => {
-        app.use('/oidc', authorizationServer.callback());
-    });
-
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    await app.register(view, {
-        engine: {
-            ejs: ejs,
-        },
-        root: path.join(__dirname, 'api', 'views'),
-    });
-
-    app.register(fastifyStatic, {
-        root: path.join(__dirname, 'api', 'assets'),
-        prefix: '/assets/',
-    });
-
+    await setFastifyPlugins(app);
     setAuthRoutes(app, new AuthController(), authorizationServer);
     setUsariosRoutes(app, new UsuarioController());
     setBoardgameRoutes(app, new BoardgameController());
