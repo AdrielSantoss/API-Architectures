@@ -3,7 +3,6 @@ import Provider from 'oidc-provider';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { InvalidApiKeyError } from '../errors/invalidApiKeyError';
 import { UsuarioRepository } from '../../database/repositories/usuarioRepository';
-import { comparePassword } from '../utils/bcrypt';
 import { UserNotFoundError } from '../errors/userNotFoundError';
 import { InvalidUserCredentialsError } from '../errors/invalidUserCredentialsError';
 
@@ -61,7 +60,7 @@ export class AuthService {
             request.raw,
             reply.raw,
             {
-                login: { accountId: user.id!.toString() },
+                login: { accountId: user.id!.toString(), remember: true },
             },
             { mergeWithLastSubmission: true }
         );

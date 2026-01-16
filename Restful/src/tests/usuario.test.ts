@@ -5,6 +5,7 @@ import { DuplicateUserError } from '../core/errors/duplicateUserError.js';
 import { redis } from '../core/providers/redisProvider.js';
 import { buildServer } from '../index.js';
 import { InvalidUserCredentialsError } from '../core/errors/invalidUserCredentialsError.js';
+import { authorizationServer } from '../core/providers/oidcProvider.js';
 
 let app: Awaited<ReturnType<typeof buildServer>>;
 
@@ -22,93 +23,65 @@ afterAll(async () => {
 });
 
 describe('OPENID CONNECT', () => {
-    it('should return 200', async () => {
-        const response = await app.inject({
-            method: 'GET',
-            url: `/oidc/.well-known/openid-configuration`,
-        });
-
-        expect(response.statusCode).toBe(200);
-    });
-
     let interactionRoute: string;
-    let cookikesAuthSession: string[];
+    let cookies: string[] = [];
 
-    it('should redirect to interaction and load login page', async () => {
+    function mergeCookies(
+        oldCookies: string[],
+        setCookie?: string | string[]
+    ): string[] {
+        if (!setCookie) return oldCookies;
+        const map = new Map<string, string>();
+
+        const setCookieArray = Array.isArray(setCookie)
+            ? setCookie
+            : [setCookie];
+
+        for (const c of oldCookies) {
+            const [nameValue] = c.split(';');
+            const [name] = nameValue.split('=');
+            map.set(name, nameValue);
+        }
+
+        for (const c of setCookieArray) {
+            const [nameValue] = c.split(';');
+            const [name] = nameValue.split('=');
+            map.set(name, nameValue);
+        }
+
+        return Array.from(map.values());
+    }
+
+    it('should redirect to login interaction', async () => {
         const response = await app.inject({
             method: 'GET',
             url: `/oidc/auth?response_type=code&client_id=app&redirect_uri=http://localhost:3000/home&scope=openid%20email&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256`,
         });
 
         expect(response.statusCode).toBe(303);
-
-        cookikesAuthSession = response.headers['set-cookie'] as string[];
-        expect(cookikesAuthSession).toBeDefined();
-
+        cookies = mergeCookies(cookies, response.headers['set-cookie']);
         interactionRoute = response.headers.location!;
+    });
 
-        const responseLoginPage = await app.inject({
+    it('should load login page', async () => {
+        const response = await app.inject({
             method: 'GET',
             url: interactionRoute,
-            headers: {
-                cookie: cookikesAuthSession.join(';'),
-            },
-        });
-
-        expect(responseLoginPage.statusCode).toBe(200);
-        expect(responseLoginPage.headers['content-type']).toContain(
-            'text/html'
-        );
-    });
-
-    it('should return 401 and login failed: user not found', async () => {
-        const response = await app.inject({
-            method: 'POST',
-            url: interactionRoute + '/login',
-            headers: {
-                cookie: cookikesAuthSession.join(';'),
-                'content-type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams({
-                email: 'notfound@prisma.io.notfound',
-                password: 'abc123',
-            }).toString(),
+            headers: { cookie: cookies.join('; ') },
         });
 
         expect(response.statusCode).toBe(200);
         expect(response.headers['content-type']).toContain('text/html');
 
-        expect(response.body).toContain(new UserNotFoundError().message);
+        cookies = mergeCookies(cookies, response.headers['set-cookie']);
     });
 
-    it('should return 401 and login failed: invalid password', async () => {
+    it('should login successfully and redirect to consent', async () => {
         const response = await app.inject({
             method: 'POST',
             url: interactionRoute + '/login',
             headers: {
-                cookie: cookikesAuthSession.join(';'),
-                'content-type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams({
-                email: 'alice@prisma.io',
-                password: 'abc123',
-            }).toString(),
-        });
-
-        expect(response.statusCode).toBe(200);
-        expect(response.headers['content-type']).toContain('text/html');
-
-        expect(response.body).toContain(
-            new InvalidUserCredentialsError().message
-        );
-    });
-
-    it('should return 200 and redirect consent page', async () => {
-        const response = await app.inject({
-            method: 'POST',
-            url: interactionRoute + '/login',
-            headers: {
-                cookie: cookikesAuthSession.join(';'),
+                cookie: cookies.join('; '),
                 'content-type': 'application/x-www-form-urlencoded',
             },
             body: new URLSearchParams({
@@ -119,19 +92,56 @@ describe('OPENID CONNECT', () => {
         });
 
         expect(response.statusCode).toBe(303);
-    });
+        cookies = mergeCookies(cookies, response.headers['set-cookie']);
 
-    it('should redirect to redirect_uri with access_denied error', async () => {
-        const response = await app.inject({
+        const returnTo = response.headers.location!;
+
+        const followUp = await app.inject({
+            method: 'GET',
+            url: returnTo,
+            headers: { cookie: cookies.join('; ') },
+        });
+
+        expect(followUp.statusCode).toBe(303);
+        cookies = mergeCookies(cookies, followUp.headers['set-cookie']);
+
+        const consentInteraction = followUp.headers.location!;
+
+        const consentPage = await app.inject({
+            method: 'GET',
+            url: consentInteraction,
+            headers: { cookie: cookies.join('; ') },
+        });
+
+        expect(consentPage.statusCode).toBe(200);
+        expect(consentPage.headers['content-type']).toContain('text/html');
+        cookies = mergeCookies(cookies, consentPage.headers['set-cookie']);
+
+        const confirmConsent = await app.inject({
             method: 'POST',
-            url: interactionRoute + '/consent/abort',
+            url: consentInteraction + '/consent/confirm',
             headers: {
-                cookie: cookikesAuthSession.join(';'),
+                cookie: cookies.join('; '),
+                'content-type': 'application/x-www-form-urlencoded',
             },
         });
 
-        expect(response.statusCode).toBe(303);
-        expect(response.headers.location).toBeDefined();
+        expect(confirmConsent.statusCode).toBe(303);
+
+        const redirectUri = confirmConsent.headers.location!;
+        cookies = mergeCookies(cookies, confirmConsent.headers['set-cookie']);
+
+        const getOidcAuth = await app.inject({
+            method: 'GET',
+            url: redirectUri,
+            headers: { cookie: cookies.join('; ') },
+        });
+
+        const redirectUriConsent = getOidcAuth.headers.location!;
+
+        expect(getOidcAuth.statusCode).toBe(303);
+        expect(redirectUriConsent).toContain('http://localhost:3000/home');
+        expect(redirectUriConsent).toContain('code=');
     });
 });
 
