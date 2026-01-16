@@ -5,6 +5,7 @@ import { InvalidApiKeyError } from '../errors/invalidApiKeyError';
 import { UsuarioRepository } from '../../database/repositories/usuarioRepository';
 import { UserNotFoundError } from '../errors/userNotFoundError';
 import { InvalidUserCredentialsError } from '../errors/invalidUserCredentialsError';
+import { comparePassword } from '../utils/bcrypt';
 
 export class AuthService {
     private usuarioRepository: UsuarioRepository;
@@ -50,9 +51,9 @@ export class AuthService {
             throw new UserNotFoundError();
         }
 
-        //const validPassword = comparePassword(password, user.senha!);
+        const validPassword = await comparePassword(password, user.senha!);
 
-        if (password !== user.senha!) {
+        if (!validPassword) {
             throw new InvalidUserCredentialsError();
         }
 
