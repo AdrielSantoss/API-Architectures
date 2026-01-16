@@ -4,8 +4,7 @@ import { UserNotFoundError } from '../core/errors/userNotFoundError.js';
 import { DuplicateUserError } from '../core/errors/duplicateUserError.js';
 import { redis } from '../core/providers/redisProvider.js';
 import { buildServer } from '../index.js';
-import { InvalidUserCredentialsError } from '../core/errors/invalidUserCredentialsError.js';
-import { authorizationServer } from '../core/providers/oidcProvider.js';
+import { mergeOIDCCookies } from '../core/utils/vitest.js';
 
 let app: Awaited<ReturnType<typeof buildServer>>;
 
@@ -22,35 +21,35 @@ afterAll(async () => {
     await app.close();
 });
 
+describe('REGISTER TEST USER', () => {
+    const newUsario = <UsuarioDto>{
+        email: `testuser@gmail.com`,
+        nome: 'testUser',
+        senha: 'abc123',
+    };
+
+    it('should return 201 and create new test user.', async () => {
+        const response = await app.inject({
+            method: 'POST',
+            url: `/usuarios`,
+            body: newUsario,
+            headers: {
+                idempotencykey: 'test-123',
+            },
+        });
+
+        const data = JSON.parse(response.body) as UsuarioDto;
+
+        expect(response.statusCode).toBe(201);
+        expect(data.email).toBe(newUsario.email);
+        expect(data.nome).toBe(newUsario.nome);
+        expect(data.created).toBe(true);
+    });
+});
+
 describe('OPENID CONNECT', () => {
     let interactionRoute: string;
     let cookies: string[] = [];
-
-    function mergeCookies(
-        oldCookies: string[],
-        setCookie?: string | string[]
-    ): string[] {
-        if (!setCookie) return oldCookies;
-        const map = new Map<string, string>();
-
-        const setCookieArray = Array.isArray(setCookie)
-            ? setCookie
-            : [setCookie];
-
-        for (const c of oldCookies) {
-            const [nameValue] = c.split(';');
-            const [name] = nameValue.split('=');
-            map.set(name, nameValue);
-        }
-
-        for (const c of setCookieArray) {
-            const [nameValue] = c.split(';');
-            const [name] = nameValue.split('=');
-            map.set(name, nameValue);
-        }
-
-        return Array.from(map.values());
-    }
 
     it('should redirect to login interaction', async () => {
         const response = await app.inject({
@@ -59,7 +58,7 @@ describe('OPENID CONNECT', () => {
         });
 
         expect(response.statusCode).toBe(303);
-        cookies = mergeCookies(cookies, response.headers['set-cookie']);
+        cookies = mergeOIDCCookies(cookies, response.headers['set-cookie']);
         interactionRoute = response.headers.location!;
     });
 
@@ -73,7 +72,26 @@ describe('OPENID CONNECT', () => {
         expect(response.statusCode).toBe(200);
         expect(response.headers['content-type']).toContain('text/html');
 
-        cookies = mergeCookies(cookies, response.headers['set-cookie']);
+        cookies = mergeOIDCCookies(cookies, response.headers['set-cookie']);
+    });
+
+    it('should login failed', async () => {
+        const response = await app.inject({
+            method: 'POST',
+            url: interactionRoute + '/login',
+            headers: {
+                cookie: cookies.join('; '),
+                'content-type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                email: 'testuser@gmail.com',
+                password: 'abc1234',
+            }).toString(),
+        });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.headers['content-type']).toContain('text/html');
+        expect(response.body).toContain('Email ou senha inválidos.');
     });
 
     it('should login successfully and redirect to consent', async () => {
@@ -85,16 +103,17 @@ describe('OPENID CONNECT', () => {
                 'content-type': 'application/x-www-form-urlencoded',
             },
             body: new URLSearchParams({
-                email: 'alice@prisma.io',
-                password:
-                    '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5',
+                email: 'testuser@gmail.com',
+                password: 'abc123',
             }).toString(),
         });
 
         expect(response.statusCode).toBe(303);
-        cookies = mergeCookies(cookies, response.headers['set-cookie']);
+        cookies = mergeOIDCCookies(cookies, response.headers['set-cookie']);
 
         const returnTo = response.headers.location!;
+
+        interactionRoute = response.headers.location!;
 
         const followUp = await app.inject({
             method: 'GET',
@@ -103,23 +122,25 @@ describe('OPENID CONNECT', () => {
         });
 
         expect(followUp.statusCode).toBe(303);
-        cookies = mergeCookies(cookies, followUp.headers['set-cookie']);
+        cookies = mergeOIDCCookies(cookies, followUp.headers['set-cookie']);
 
-        const consentInteraction = followUp.headers.location!;
+        interactionRoute = followUp.headers.location!;
 
         const consentPage = await app.inject({
             method: 'GET',
-            url: consentInteraction,
+            url: interactionRoute,
             headers: { cookie: cookies.join('; ') },
         });
 
         expect(consentPage.statusCode).toBe(200);
         expect(consentPage.headers['content-type']).toContain('text/html');
-        cookies = mergeCookies(cookies, consentPage.headers['set-cookie']);
+        cookies = mergeOIDCCookies(cookies, consentPage.headers['set-cookie']);
+    });
 
+    it('should confirm consent and redirect to home with code PCKE', async () => {
         const confirmConsent = await app.inject({
             method: 'POST',
-            url: consentInteraction + '/consent/confirm',
+            url: interactionRoute + '/consent/confirm',
             headers: {
                 cookie: cookies.join('; '),
                 'content-type': 'application/x-www-form-urlencoded',
@@ -129,7 +150,10 @@ describe('OPENID CONNECT', () => {
         expect(confirmConsent.statusCode).toBe(303);
 
         const redirectUri = confirmConsent.headers.location!;
-        cookies = mergeCookies(cookies, confirmConsent.headers['set-cookie']);
+        cookies = mergeOIDCCookies(
+            cookies,
+            confirmConsent.headers['set-cookie']
+        );
 
         const getOidcAuth = await app.inject({
             method: 'GET',
