@@ -168,6 +168,36 @@ describe('OPENID CONNECT', () => {
         expect(interactionRoute).toContain(`http://localhost:${port}/home`);
         expect(interactionRoute).toContain('code=');
     });
+
+    it('should exchange authorization code for tokens', async () => {
+        const url = new URL(interactionRoute);
+        const authorizationCode = url.searchParams.get('code');
+
+        expect(authorizationCode).toBeTruthy();
+
+        const tokenResponse = await app.inject({
+            method: 'POST',
+            url: '/oidc/token',
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                grant_type: 'authorization_code',
+                client_id: 'app',
+                redirect_uri: `http://localhost:${port}/home`,
+                code: authorizationCode!,
+                code_verifier: 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk',
+            }).toString(),
+        });
+
+        expect(tokenResponse.statusCode).toBe(200);
+
+        const body = JSON.parse(tokenResponse.body);
+
+        expect(body).toHaveProperty('access_token');
+        expect(body).toHaveProperty('id_token');
+        expect(body.token_type).toBe('Bearer');
+        expect(body.expires_in).toBeGreaterThan(0);
     });
 });
 
