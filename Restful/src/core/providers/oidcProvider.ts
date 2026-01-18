@@ -2,6 +2,19 @@ import * as oidc from 'oidc-provider';
 import { prisma } from './prismaClientProvider';
 
 const port = process.env.PORT ?? '3000';
+
+const resourceServer: oidc.ResourceServer = {
+    scope: 'openid email',
+    audience: `http://localhost:${port}`,
+    accessTokenFormat: 'jwt',
+    accessTokenTTL: 3600,
+    jwt: {
+        sign: {
+            alg: 'RS256',
+        },
+    },
+};
+
 export const authorizationServer = new oidc.Provider(
     'http://localhost:' + port,
     {
@@ -39,13 +52,25 @@ export const authorizationServer = new oidc.Provider(
                 },
             };
         },
+
         interactions: {
             url(ctx, interaction) {
                 return `/interaction/${interaction.uid}`;
             },
         },
+
         features: {
             devInteractions: { enabled: false },
+            resourceIndicators: {
+                enabled: true,
+                getResourceServerInfo: async (
+                    _: oidc.KoaContextWithOIDC,
+                    __: string,
+                    ___: oidc.Client
+                ) => {
+                    return resourceServer;
+                },
+            },
         },
     }
 );

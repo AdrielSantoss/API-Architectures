@@ -8,6 +8,7 @@ import { mergeOIDCCookies } from '../core/utils/vitest.js';
 
 let app: Awaited<ReturnType<typeof buildServer>>;
 const port = process.env.PORT ?? '3000';
+let accessTokenInfos: any;
 
 beforeAll(async () => {
     app = await buildServer();
@@ -55,7 +56,7 @@ describe('OPENID CONNECT', () => {
     it('should redirect to login interaction', async () => {
         const response = await app.inject({
             method: 'GET',
-            url: `/oidc/auth?response_type=code&client_id=app&redirect_uri=http://localhost:${port}/home&scope=openid%20email&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256`,
+            url: `/oidc/auth?response_type=code&client_id=app&redirect_uri=http://localhost:${port}/home&scope=openid%20email&resource=http://localhost:${port}&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256`,
         });
 
         expect(response.statusCode).toBe(303);
@@ -187,6 +188,7 @@ describe('OPENID CONNECT', () => {
                 redirect_uri: `http://localhost:${port}/home`,
                 code: authorizationCode!,
                 code_verifier: 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk',
+                resource: `http://localhost:${port}`,
             }).toString(),
         });
 
@@ -198,6 +200,8 @@ describe('OPENID CONNECT', () => {
         expect(body).toHaveProperty('id_token');
         expect(body.token_type).toBe('Bearer');
         expect(body.expires_in).toBeGreaterThan(0);
+
+        accessTokenInfos = body;
     });
 });
 
@@ -212,6 +216,9 @@ describe('GET /usuarios', () => {
         const response = await app.inject({
             method: 'GET',
             url: `/usuarios?page=${page}&limit=${limit}`,
+            headers: {
+                authorization: `${accessTokenInfos.token_type} ${accessTokenInfos.access_token}`,
+            },
         });
 
         const data = JSON.parse(response.body) as UsuariosDto;

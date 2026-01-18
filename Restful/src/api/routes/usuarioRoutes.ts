@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { UsuarioController } from '../controllers/usuarioController.js';
+import { oidcAuthMiddleware } from '../middlewares/JWTValidator.openid.js';
 
 export function setUsariosRoutes(
     app: FastifyInstance,
@@ -22,6 +23,7 @@ export function setUsariosRoutes(
                     },
                 },
             },
+            preHandler: [oidcAuthMiddleware],
         },
         async (request, reply) => userController.getUsuarios(request, reply)
     );

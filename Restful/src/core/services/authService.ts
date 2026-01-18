@@ -90,6 +90,11 @@ export class AuthService {
 
         grant.addOIDCScope('openid email');
 
+        grant.addResourceScope(
+            `http://localhost:${process.env.PORT ?? '3000'}`,
+            'openid email'
+        );
+
         const savedGrantId = await grant.save();
 
         await authorizationServer.interactionFinished(
